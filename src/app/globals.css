@@ -1,0 +1,235 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ── Esports Dark Theme ── */
+
+:root {
+  /* Backgrounds */
+  --background: #0B0F19;
+  --foreground: #E2E8F0;
+
+  /* Cards & Surfaces */
+  --card: #131A2B;
+  --card-foreground: #E2E8F0;
+
+  /* Primary = Electric Blue */
+  --primary: #00D4FF;
+  --primary-foreground: #0B0F19;
+
+  /* Secondary = Dark Border */
+  --secondary: #1E2D45;
+  --secondary-foreground: #94A3B8;
+
+  /* Muted */
+  --muted: #131A2B;
+  --muted-foreground: #64748B;
+
+  /* Accent = Neon Purple */
+  --accent: #A855F7;
+  --accent-foreground: #FFFFFF;
+
+  /* Destructive */
+  --destructive: #EF4444;
+
+  /* Borders & Rings */
+  --border: #1E2D45;
+  --ring: #00D4FF;
+
+  /* Radius — sharper for esports vibe */
+  --radius: 0.25rem;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+
+  /* Sidebar / Input / Charts */
+  --input: #1E2D45;
+  --input-foreground: #E2E8F0;
+  --sidebar-background: #0B0F19;
+  --sidebar-foreground: #E2E8F0;
+  --sidebar-primary: #00D4FF;
+  --sidebar-primary-foreground: #0B0F19;
+  --sidebar-accent: #A855F7;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #1E2D45;
+  --sidebar-ring: #00D4FF;
+  --chart-1: #00D4FF;
+  --chart-2: #A855F7;
+  --chart-3: #C8A951;
+  --chart-4: #EF4444;
+  --chart-5: #22C55E;
+}
+
+/* ── Theme Tokens: Custom Cyber Palette ── */
+@theme inline {
+  --color-cyber-darker: #070A12;
+  --color-cyber-dark: #0B0F19;
+  --color-cyber-surface: #131A2B;
+  --color-cyber-border: #1E2D45;
+  --color-neon-blue: #00D4FF;
+  --color-neon-purple: #A855F7;
+  --color-neon-gold: #C8A951;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+/* ── Base Styles ── */
+body {
+  background: #0B0F19;
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Background: Radial Glow ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 20%, rgba(0, 212, 255, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 70%, rgba(168, 85, 247, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 30% at 20% 60%, rgba(200, 169, 81, 0.02) 0%, transparent 50%);
+}
+
+/* ── Background: Tactical HUD Grid ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.3) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 70%);
+}
+
+/* ── Glassmorphism ── */
+@utility glass {
+  background: rgba(19, 26, 43, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(30, 45, 69, 0.5);
+}
+
+@utility glass-strong {
+  background: rgba(19, 26, 43, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(30, 45, 69, 0.6);
+}
+
+@utility glass-subtle {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ── Neon Glow Utilities ── */
+@utility glow-blue {
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3), 0 0 30px rgba(0, 212, 255, 0.1);
+}
+
+@utility glow-purple {
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3), 0 0 30px rgba(168, 85, 247, 0.1);
+}
+
+@utility glow-gold {
+  box-shadow: 0 0 15px rgba(200, 169, 81, 0.3), 0 0 30px rgba(200, 169, 81, 0.1);
+}
+
+/* ── Neon Text Utilities ── */
+@utility neon-text-blue {
+  color: #00D4FF;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+@utility neon-text-purple {
+  color: #A855F7;
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.5), 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+@utility neon-text-gold {
+  color: #C8A951;
+  text-shadow: 0 0 10px rgba(200, 169, 81, 0.5), 0 0 20px rgba(200, 169, 81, 0.3);
+}
+
+/* ── Subtle Gradient Border ── */
+@utility border-glow-blue {
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 1px 0 0 rgba(0, 212, 255, 0.15);
+}
+
+/* ── Tech-y Input Styles ── */
+@utility input-tech {
+  background: rgba(15, 23, 42, 0.6);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(30, 45, 69, 0.6);
+  transition: all 0.2s ease;
+}
+@utility input-tech-focus {
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 212, 255, 0.15);
+  outline: none;
+}
+
+/* ── Post Card Hover ── */
+@utility card-hover {
+  transition: all 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  border-left: 2px solid #C8A951;
+  box-shadow: 0 0 20px rgba(200, 169, 81, 0.1), 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ── HUD Active Category ── */
+@utility hud-active {
+  border-left: 2px solid #00D4FF;
+  background: linear-gradient(to right, rgba(0, 212, 255, 0.12), transparent 70%);
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0F19;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E2D45;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00D4FF;
+}
+
+/* ── Display Font Class ── */
+.font-display {
+  font-family: var(--font-display);
+}
