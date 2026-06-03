@@ -7,9 +7,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
-
 // ── NextAuth v4 required models ──
 
 model Account {
