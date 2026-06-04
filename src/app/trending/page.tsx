@@ -1,24 +1,44 @@
-﻿import { Flame, TrendingUp } from "lucide-react"
+import { Flame } from "lucide-react"
+import { getServerSession } from "next-auth"
+import { prisma } from "@/lib/prisma"
+import { mapPrismaPost } from "@/lib/mappers"
+import { authOptions } from "@/lib/auth"
 import { Feed } from "@/components/feed/Feed"
-import { mockPosts } from "@/data/mock-posts"
 
-const trendingPosts = [...mockPosts]
-  .sort((a, b) => b.upvotes - a.upvotes)
-  .slice(0, 4)
+export default async function TrendingPage() {
+  const dbPosts = await prisma.post.findMany({
+    include: { author: true },
+    orderBy: { upvotes: "desc" },
+    take: 20,
+  })
 
-export default function TrendingPage() {
+  const session = await getServerSession(authOptions)
+  const postIds = dbPosts.map((p) => p.id)
+  const userVotes = session?.user?.id
+    ? await prisma.vote.findMany({
+        where: {
+          userId: session.user.id,
+          postId: { in: postIds },
+        },
+      })
+    : []
+
+  const voteMap = new Map(userVotes.map((v) => [v.postId, v.type as "upvote" | "downvote"]))
+
+  const posts = dbPosts.map((p) =>
+    mapPrismaPost({ ...p, userVote: voteMap.get(p.id) ?? null }),
+  )
+
   return (
-    <div className="max-w-3xl animate-fade-in-up">
-      <Feed posts={trendingPosts} />
-      <div className="glass-subtle rounded-lg p-10 text-center mt-5 animate-fade-in">
-        <Flame size={28} className="text-neon-purple/60 mx-auto mb-4" />
-        <p className="text-slate-400/70 font-display tracking-[0.25em] uppercase text-sm">
-          Trending algorithm calibrating
-        </p>
-        <p className="text-slate-600/40 text-xs mt-2">
-          Real-time trend detection and hot-topic surfacing coming soon.
-        </p>
-      </div>
+    <div className="max-w-3xl">
+      <Feed posts={posts} />
+      {posts.length === 0 && (
+        <div className="glass-subtle clip-chamfer p-8 text-center mt-3 animate-fade-in corner-marks">
+          <Flame size={24} className="text-neon-purple/50 mx-auto mb-2" />
+          <p className="text-slate-400/60 font-display font-black tracking-[0.5em] uppercase text-xs">TREND CALIBRATING</p>
+          <p className="text-slate-400/50 text-[10px] mt-2 font-mono">Real-time trend detection engine initializing...</p>
+        </div>
+      )}
     </div>
   )
 }

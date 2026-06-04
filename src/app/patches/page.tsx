@@ -1,24 +1,42 @@
-﻿import { Newspaper, ScrollText } from "lucide-react"
+import { ScrollText } from "lucide-react"
+import { getServerSession } from "next-auth"
+import { prisma } from "@/lib/prisma"
+import { mapPrismaPost } from "@/lib/mappers"
+import { authOptions } from "@/lib/auth"
 import { Feed } from "@/components/feed/Feed"
-import { mockPosts } from "@/data/mock-posts"
 
-const patchesPosts = mockPosts.filter((p) =>
-  p.tag.toLowerCase().includes("patchnotes"),
-)
+export default async function PatchesPage() {
+  const dbPosts = await prisma.post.findMany({
+    where: { tag: "#PatchNotes" },
+    include: { author: true },
+    orderBy: { createdAt: "desc" },
+  })
 
-export default function PatchesPage() {
+  const session = await getServerSession(authOptions)
+  const postIds = dbPosts.map((p) => p.id)
+  const userVotes = session?.user?.id
+    ? await prisma.vote.findMany({
+        where: {
+          userId: session.user.id,
+          postId: { in: postIds },
+        },
+      })
+    : []
+
+  const voteMap = new Map(userVotes.map((v) => [v.postId, v.type as "upvote" | "downvote"]))
+
+  const posts = dbPosts.map((p) =>
+    mapPrismaPost({ ...p, userVote: voteMap.get(p.id) ?? null }),
+  )
+
   return (
-    <div className="max-w-3xl animate-fade-in-up">
-      <Feed posts={patchesPosts.length > 0 ? patchesPosts : mockPosts.slice(0, 2)} />
-      {patchesPosts.length === 0 && (
-        <div className="glass-subtle rounded-lg p-10 text-center mt-5 animate-fade-in">
-          <ScrollText size={28} className="text-neon-blue/60 mx-auto mb-4" />
-          <p className="text-slate-400/70 font-display tracking-[0.25em] uppercase text-sm">
-            Patch notes archive
-          </p>
-          <p className="text-slate-600/40 text-xs mt-2">
-            Detailed patch breakdowns and meta analysis coming soon.
-          </p>
+    <div className="max-w-3xl">
+      <Feed posts={posts} />
+      {posts.length === 0 && (
+        <div className="glass-subtle clip-chamfer p-8 text-center mt-3 animate-fade-in corner-marks">
+          <ScrollText size={24} className="text-neon-blue/50 mx-auto mb-2" />
+          <p className="text-slate-400/60 font-display font-black tracking-[0.5em] uppercase text-xs">PATCH ARCHIVE</p>
+          <p className="text-slate-400/50 text-[10px] mt-2 font-mono">Detailed patch breakdowns and meta analysis loading...</p>
         </div>
       )}
     </div>
