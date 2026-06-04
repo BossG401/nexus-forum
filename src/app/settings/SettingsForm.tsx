@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -6,6 +6,7 @@ import { User, Globe, Trophy, Save, CheckCircle, AlertTriangle } from "lucide-re
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { updateProfile } from "@/actions/user"
+import { cn } from "@/lib/utils"
 
 interface SettingsFormProps {
   defaultName: string
@@ -16,7 +17,7 @@ interface SettingsFormProps {
 }
 
 const selectClasses =
-  "w-full input-tech focus:input-tech-focus rounded-sm px-3 py-2 text-sm text-slate-200 font-mono appearance-none cursor-pointer bg-cyber-dark/80"
+  "w-full input-tech focus:input-tech-focus rounded-lg px-3.5 py-2.5 text-sm text-slate-200 font-mono appearance-none cursor-pointer bg-cyber-dark/80 transition-all duration-200"
 
 export function SettingsForm({ defaultName, defaultServer, defaultRank, regions, ranks }: SettingsFormProps) {
   const router = useRouter()
@@ -53,11 +54,11 @@ export function SettingsForm({ defaultName, defaultServer, defaultRank, regions,
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Summoner Name */}
       <div>
-        <label className="flex items-center gap-2 text-xs text-slate-400 font-display tracking-wider uppercase mb-2">
-          <User size={12} className="text-neon-blue" />
+        <label className="flex items-center gap-2 text-[11px] text-slate-400/70 font-display tracking-wider uppercase mb-2.5">
+          <User size={11} className="text-neon-blue/70" />
           Summoner Name
         </label>
         <Input
@@ -67,14 +68,14 @@ export function SettingsForm({ defaultName, defaultServer, defaultRank, regions,
           placeholder="Hide on bush"
           maxLength={50}
           required
-          className="input-tech focus:input-tech-focus text-slate-200 placeholder:text-slate-600"
+          className="input-tech focus:input-tech-focus text-slate-200 placeholder:text-slate-600/50 h-10 rounded-lg text-sm"
         />
       </div>
 
       {/* Region Select */}
       <div>
-        <label className="flex items-center gap-2 text-xs text-slate-400 font-display tracking-wider uppercase mb-2">
-          <Globe size={12} className="text-neon-gold" />
+        <label className="flex items-center gap-2 text-[11px] text-slate-400/70 font-display tracking-wider uppercase mb-2.5">
+          <Globe size={11} className="text-neon-gold/70" />
           Region / Server
         </label>
         <div className="relative">
@@ -92,18 +93,17 @@ export function SettingsForm({ defaultName, defaultServer, defaultRank, regions,
               </option>
             ))}
           </select>
-          {/* Custom dropdown chevron */}
           <Globe
             size={14}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500/60 pointer-events-none"
           />
         </div>
       </div>
 
       {/* Rank Select */}
       <div>
-        <label className="flex items-center gap-2 text-xs text-slate-400 font-display tracking-wider uppercase mb-2">
-          <Trophy size={12} className="text-neon-purple" />
+        <label className="flex items-center gap-2 text-[11px] text-slate-400/70 font-display tracking-wider uppercase mb-2.5">
+          <Trophy size={11} className="text-neon-purple/70" />
           Rank / Tier
         </label>
         <div className="relative">
@@ -123,7 +123,7 @@ export function SettingsForm({ defaultName, defaultServer, defaultRank, regions,
           </select>
           <Trophy
             size={14}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500/60 pointer-events-none"
           />
         </div>
       </div>
@@ -131,11 +131,12 @@ export function SettingsForm({ defaultName, defaultServer, defaultRank, regions,
       {/* Message */}
       {message && (
         <div
-          className={`flex items-center gap-2 px-4 py-3 rounded-sm border text-sm font-display tracking-wider ${
+          className={cn(
+            "flex items-center gap-2.5 px-4 py-3 rounded-lg border text-sm font-display tracking-wider animate-fade-in",
             message.type === "success"
-              ? "bg-green-400/10 border-green-400/30 text-green-400"
-              : "bg-red-400/10 border-red-400/30 text-red-400"
-          }`}
+              ? "bg-green-400/[0.06] border-green-400/25 text-green-400/90"
+              : "bg-red-400/[0.06] border-red-400/25 text-red-400/90"
+          )}
         >
           {message.type === "success" ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}
           {message.text}
@@ -143,23 +144,31 @@ export function SettingsForm({ defaultName, defaultServer, defaultRank, regions,
       )}
 
       {/* Submit */}
-      <div className="flex items-center justify-between pt-2 border-t border-cyber-border/50">
-        <span className="text-[10px] text-slate-600 font-display tracking-wider">
+      <div className="flex items-center justify-between pt-4 border-t border-white/[0.04]">
+        <span className="text-[10px] text-slate-600/40 font-display tracking-wider">
           Changes take effect immediately
         </span>
         <Button
           type="submit"
           disabled={saving || !name.trim()}
-          className="flex items-center gap-2 bg-neon-purple text-white hover:bg-neon-purple/90 hover:glow-purple transition-all font-semibold font-display uppercase tracking-wider disabled:opacity-30 disabled:cursor-not-allowed"
+          className={cn(
+            "flex items-center gap-2 h-10 px-5 rounded-lg",
+            "bg-neon-purple text-white",
+            "hover:bg-neon-purple/90 hover:shadow-[0_0_20px_rgba(168,85,247,0.25)]",
+            "active:scale-[0.97]",
+            "transition-all duration-200",
+            "font-semibold font-display uppercase tracking-wider text-xs",
+            "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:active:scale-100"
+          )}
         >
           {saving ? (
             <>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent" />
               Saving...
             </>
           ) : (
             <>
-              <Save size={16} />
+              <Save size={14} strokeWidth={2.5} />
               Save Changes
             </>
           )}

@@ -1,4 +1,4 @@
-import { Suspense } from "react"
+﻿import { Suspense } from "react"
 import type { Metadata } from "next"
 import { Inter, Rajdhani } from "next/font/google"
 import { getServerSession } from "next-auth"
@@ -30,11 +30,6 @@ export const metadata: Metadata = {
   description: "Hardcore League of Legends esports forum with real gaming stats, ranks, and discussions.",
 }
 
-/**
- * Merge real DB user identity fields with mock gaming stat defaults.
- * Fields not yet stored in the User model (KDA, win/loss, champions)
- * fall back to placeholder values that would come from Riot API in production.
- */
 function deriveUserStats(
   dbUser: {
     name: string | null
@@ -62,7 +57,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // Fetch real post counts per category tag from the database
   const counts = await prisma.post.groupBy({
     by: ["tag"],
     _count: { id: true },
@@ -70,13 +64,11 @@ export default async function RootLayout({
 
   const countMap = new Map(counts.map((c) => [c.tag, c._count.id]))
 
-  // Merge mock categories with real post counts
   const categories: Category[] = mockCategories.map((cat) => ({
     ...cat,
     postCount: countMap.get(cat.name) ?? 0,
   }))
 
-  // ── Fetch real user data to replace mock identity ──
   const session = await getServerSession(authOptions)
   let dbUser = null
   if (session?.user?.id) {
@@ -93,22 +85,22 @@ export default async function RootLayout({
           <TooltipProvider>
             <Navbar categories={categories} userStats={userStats} />
 
-            {/* ── Desktop 3-panel grid ── */}
+            {/* Desktop 3-panel grid */}
             <div className="relative z-10 pt-16 grid grid-cols-1 lg:grid-cols-[260px_1fr] xl:grid-cols-[260px_1fr_320px] min-h-screen">
               {/* Left Sidebar — visible lg+ */}
-              <div className="hidden lg:block sticky top-16 h-[calc(100vh-64px)] overflow-hidden">
-                <Suspense fallback={<div className="w-[260px] bg-cyber-dark border-r border-cyber-border" />}>
+              <div className="hidden lg:block sticky top-16 h-[calc(100vh-64px)] overflow-hidden border-r border-white/[0.03]">
+                <Suspense fallback={<div className="w-[260px] bg-cyber-dark" />}>
                   <SidebarClient categories={categories} />
                 </Suspense>
               </div>
 
               {/* Main content */}
-              <main className="min-h-[calc(100vh-64px)] p-6 max-w-4xl w-full mx-auto">
+              <main className="min-h-[calc(100vh-64px)] py-8 px-6 lg:px-8 max-w-4xl w-full mx-auto">
                 {children}
               </main>
 
               {/* Right Panel — visible xl+ */}
-              <div className="hidden xl:block sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
+              <div className="hidden xl:block sticky top-16 h-[calc(100vh-64px)] overflow-y-auto border-l border-white/[0.03]">
                 <RightPanel
                   userStats={userStats}
                   className="h-full"

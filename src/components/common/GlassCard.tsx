@@ -1,4 +1,4 @@
-import * as React from "react"
+﻿import * as React from "react"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
@@ -10,8 +10,8 @@ export function GlassCard({ className, hoverGlow = true, ...props }: GlassCardPr
   return (
     <Card
       className={cn(
-        "glass border-0 ring-0",
-        hoverGlow && "hover:glow-blue transition-shadow duration-300",
+        "glass border-0 ring-0 transition-all duration-300",
+        hoverGlow && "hover:shadow-[0_0_16px_rgba(0,212,255,0.08),0_4px_24px_rgba(0,0,0,0.2)]",
         className
       )}
       {...props}

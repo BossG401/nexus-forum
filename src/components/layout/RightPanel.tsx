@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import * as React from "react"
 import { useSession, signIn } from "next-auth/react"
@@ -10,43 +10,43 @@ import { GlassCard } from "@/components/common/GlassCard"
 import { cn } from "@/lib/utils"
 import type { UserStats } from "@/lib/types"
 
-// ── Rank → Color mapping (glow text, box glow, progress bar color) ──
+//─── Rank → Color mapping (refined softer glows) ───
 const rankGradient: Record<string, { text: string; glow: string; bar: string; ring: string }> = {
   Challenger: {
     text: "text-neon-gold neon-text-gold",
-    glow: "glow-gold",
+    glow: "shadow-[0_0_12px_rgba(200,169,81,0.2),0_0_28px_rgba(200,169,81,0.06)]",
     bar: "bg-neon-gold",
-    ring: "ring-neon-gold/40 shadow-[0_0_15px_rgba(200,169,81,0.3)]",
+    ring: "ring-neon-gold/35 shadow-[0_0_12px_rgba(200,169,81,0.2)]",
   },
   Grandmaster: {
-    text: "text-red-400 [text-shadow:0_0_10px_rgba(239,68,68,0.5),0_0_20px_rgba(239,68,68,0.25)]",
-    glow: "shadow-[0_0_15px_rgba(239,68,68,0.3),0_0_30px_rgba(239,68,68,0.1)]",
+    text: "text-red-400 [text-shadow:0_0_8px_rgba(239,68,68,0.4),0_0_16px_rgba(239,68,68,0.15)]",
+    glow: "shadow-[0_0_12px_rgba(239,68,68,0.2),0_0_28px_rgba(239,68,68,0.06)]",
     bar: "bg-red-400",
-    ring: "ring-red-400/40 shadow-[0_0_15px_rgba(239,68,68,0.3)]",
+    ring: "ring-red-400/35 shadow-[0_0_12px_rgba(239,68,68,0.2)]",
   },
   Master: {
     text: "text-neon-purple neon-text-purple",
     glow: "glow-purple",
     bar: "bg-neon-purple",
-    ring: "ring-neon-purple/40 shadow-[0_0_15px_rgba(168,85,247,0.3)]",
+    ring: "ring-neon-purple/35 shadow-[0_0_12px_rgba(168,85,247,0.2)]",
   },
   Diamond: {
     text: "text-neon-blue neon-text-blue",
     glow: "glow-blue",
     bar: "bg-neon-blue",
-    ring: "ring-neon-blue/40 shadow-[0_0_15px_rgba(0,212,255,0.3)]",
+    ring: "ring-neon-blue/35 shadow-[0_0_12px_rgba(0,212,255,0.2)]",
   },
   Platinum: {
-    text: "text-teal-400 [text-shadow:0_0_8px_rgba(45,212,191,0.4)]",
+    text: "text-teal-400 [text-shadow:0_0_6px_rgba(45,212,191,0.3)]",
     glow: "",
     bar: "bg-teal-400",
-    ring: "ring-teal-400/40",
+    ring: "ring-teal-400/30",
   },
   Gold: {
-    text: "text-amber-400 [text-shadow:0_0_8px_rgba(251,191,36,0.3)]",
+    text: "text-amber-400 [text-shadow:0_0_6px_rgba(251,191,36,0.25)]",
     glow: "",
     bar: "bg-amber-400",
-    ring: "ring-amber-400/30",
+    ring: "ring-amber-400/25",
   },
 }
 
@@ -58,7 +58,6 @@ interface RightPanelProps {
 export function RightPanel({ userStats, className }: RightPanelProps) {
   const { data: session, status } = useSession()
 
-  // ── Live stats for mock Riot sync ──
   const [liveStats, setLiveStats] = React.useState(userStats)
   const [syncPhase, setSyncPhase] = React.useState<"idle" | "syncing" | "success">("idle")
 
@@ -66,7 +65,6 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
   const winPct = Math.round((liveStats.wins / (liveStats.wins + liveStats.losses)) * 100)
   const totalGames = liveStats.wins + liveStats.losses
 
-  // ── Mock Riot API sync ──
   const handleSync = () => {
     if (syncPhase !== "idle") return
     setSyncPhase("syncing")
@@ -74,9 +72,9 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
     const baseTotal = liveStats.wins + liveStats.losses
 
     setTimeout(() => {
-      const newLP = Math.floor(Math.random() * 1401) + 100 // 100–1500
-      const newWR = Math.floor(Math.random() * 21) + 45 // 45–65
-      const newKDA = parseFloat((Math.random() * 6 + 2).toFixed(1)) // 2.0–8.0
+      const newLP = Math.floor(Math.random() * 1401) + 100
+      const newWR = Math.floor(Math.random() * 21) + 45
+      const newKDA = parseFloat((Math.random() * 6 + 2).toFixed(1))
       const newWins = Math.round((baseTotal * newWR) / 100)
       const newLosses = baseTotal - newWins
 
@@ -94,7 +92,6 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
     }, 2000)
   }
 
-  // Keep identity fields in sync when the server prop updates (e.g. after saving settings)
   React.useEffect(() => {
     setLiveStats((prev) => ({
       ...prev,
@@ -116,74 +113,63 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
     userStats.status,
   ])
 
-  // ── Loading skeleton ──
+  //─── Loading skeleton ───
   if (status === "loading") {
     return (
       <aside className={className}>
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 stagger-children">
           {Array.from({ length: 4 }).map((_, i) => (
-            <GlassCard key={i} className="p-4">
+            <div
+              key={i}
+              style={{ "--stagger": i } as React.CSSProperties}
+              className="glass-subtle rounded-lg p-5"
+            >
               <div className="space-y-3 animate-pulse">
-                <div className="h-4 bg-cyber-surface rounded-sm w-3/4" />
-                <div className="h-8 bg-cyber-surface rounded-sm w-1/2" />
-                <div className="h-2 bg-cyber-surface rounded-sm w-full" />
+                <div className="h-3 bg-white/[0.04] rounded-md w-2/3" />
+                <div className="h-7 bg-white/[0.04] rounded-md w-1/2" />
+                <div className="h-1.5 bg-white/[0.04] rounded-full w-full" />
               </div>
-            </GlassCard>
+            </div>
           ))}
         </div>
       </aside>
     )
   }
 
-  // ── Unauthenticated: CLASSIFIED overlay ──
+  //─── Unauthenticated: CLASSIFIED overlay ───
   if (!session?.user) {
     return (
       <aside className={className}>
-        <div className="p-4">
-          {/* Blurred CLASSIFIED card */}
-          <div className="relative overflow-hidden rounded-sm">
+        <div className="p-4 space-y-4 animate-fade-in">
+          <div className="relative overflow-hidden rounded-lg">
             {/* Blurred mock content behind */}
-            <div className="select-none pointer-events-none blur-[12px] opacity-20">
-              <div className="space-y-3">
-                <GlassCard className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-14 w-14 rounded-sm bg-cyber-surface" />
-                    <div className="flex-1 space-y-1.5">
-                      <div className="h-4 bg-slate-600 rounded-sm w-2/3" />
-                      <div className="h-3 bg-slate-700 rounded-sm w-1/3" />
-                    </div>
-                  </div>
-                  <div className="h-2 bg-slate-700 rounded-sm w-full mt-3" />
-                  <div className="flex items-center gap-2 mt-3">
-                    <div className="h-2.5 w-2.5 rounded-full bg-green-600" />
-                    <div className="h-3 bg-slate-700 rounded-sm w-1/2" />
-                  </div>
-                </GlassCard>
-                <GlassCard className="p-4">
-                  <div className="h-3 bg-slate-700 rounded-sm w-1/3" />
-                  <div className="h-10 bg-slate-600 rounded-sm w-2/3 mt-3 mx-auto" />
-                  <div className="h-4 bg-slate-700 rounded-sm w-1/2 mt-2 mx-auto" />
-                  <div className="h-4 bg-slate-800 rounded-sm w-full mt-3" />
-                </GlassCard>
+            <div className="blur-md opacity-40 pointer-events-none select-none p-5 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-14 w-14 rounded-full bg-neon-gold/20" />
+                <div className="space-y-2">
+                  <div className="h-4 w-28 bg-white/10 rounded-sm" />
+                  <div className="h-3 w-20 bg-neon-blue/10 rounded-sm" />
+                </div>
               </div>
+              <div className="grid grid-cols-2 gap-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-14 bg-white/[0.03] rounded-md" />
+                ))}
+              </div>
+              <div className="h-20 bg-white/[0.03] rounded-md" />
             </div>
 
-            {/* Overlay */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-cyber-darker/80 backdrop-blur-sm border border-cyber-border rounded-sm p-6 text-center">
-              <ShieldAlert size={36} className="text-neon-purple mb-3 glow-purple" />
-              <h3 className="text-sm font-display font-bold uppercase tracking-[0.3em] text-slate-300 mb-2">
-                /// CLASSIFIED
-              </h3>
-              <p className="text-xs text-slate-500 mb-5 leading-relaxed max-w-[220px]">
-                Tactical dossier requires authentication. Connect your Riot / QQ account to access your personal stats.
+            {/* CLASSIFIED overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-cyber-darker/80 backdrop-blur-sm rounded-lg border border-white/[0.06]">
+              <ShieldAlert size={28} className="text-neon-purple/60 mb-3" />
+              <p className="text-sm font-display font-bold uppercase tracking-[0.25em] text-slate-300 mb-1">
+                CLASSIFIED
               </p>
-              <button
-                type="button"
-                onClick={() => signIn()}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-sm bg-neon-blue text-cyber-dark font-display font-semibold text-xs uppercase tracking-wider hover:glow-blue transition-all"
-              >
-                <LogIn size={14} />
-                Authenticate to view Dossier
+              <p className="text-[11px] text-slate-500/70 mb-5 text-center px-6">
+                Sign in to view summoner stats and tactical intel.
+              </p>
+              <button type="button" onClick={() => signIn()} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-neon-blue/[0.08] border border-neon-blue/25 text-neon-blue text-xs font-display font-semibold uppercase tracking-wider hover:bg-neon-blue/[0.15] hover:border-neon-blue/40 hover:shadow-[0_0_16px_rgba(0,212,255,0.08)] active:scale-[0.97] transition-all duration-200">
+                Connect
               </button>
             </div>
           </div>
@@ -192,237 +178,169 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
     )
   }
 
-  // ── Authenticated: Full Dossier ──
+  //─── Authenticated: Full panel ───
   return (
     <aside className={className}>
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-4 animate-fade-in">
 
-        {/* ════════════════════════════════════════════════
-            Section 1 — Profile Header & Live Status
-            ════════════════════════════════════════════════ */}
-        <GlassCard className="p-4 gap-3">
-          {/* Avatar + Name + Server */}
-          <div className="flex items-center gap-3">
-            <Avatar
-              className={cn(
-                "h-14 w-14 ring-2 rounded-sm",
-                rank.ring,
-              )}
-            >
-              <AvatarImage
-                src={session.user.image ?? liveStats.avatarUrl}
-                alt={session.user.name ?? liveStats.summonerName}
-              />
-              <AvatarFallback className="bg-neon-gold/20 text-neon-gold font-bold text-xl font-display rounded-sm">
-                {(session.user.name ?? liveStats.summonerName).charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-
+        {/*─── Section 1: Identity Card ───*/}
+        <GlassCard className="p-5 rounded-lg">
+          <div className="flex items-center gap-3.5">
+            <div className="relative">
+              <Avatar className={cn("h-14 w-14 ring-2 transition-all duration-300", rank.ring)}>
+                <AvatarImage src={liveStats.avatarUrl} alt={liveStats.summonerName} />
+                <AvatarFallback className="bg-neon-blue/15 text-neon-blue text-lg font-bold font-display">
+                  {liveStats.summonerName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              {/* Status dot */}
+              <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-green-400 border-2 border-cyber-dark shadow-[0_0_6px_rgba(74,222,128,0.4)]" />
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-slate-100 text-base truncate leading-tight">
-                {session.user.name ?? liveStats.summonerName}
-              </p>
-              <p className="text-xs text-slate-500 font-display tracking-[0.2em] uppercase mt-0.5">
-                [{liveStats.server}]
+              <h3 className="text-sm font-semibold text-slate-100 truncate leading-tight">
+                {liveStats.summonerName}
+              </h3>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className={cn("text-xs font-display font-bold uppercase tracking-wider", rank.text)}>
+                  {liveStats.rank}
+                </span>
+                {liveStats.rankTier && (
+                  <span className="text-[10px] text-slate-500 font-display tracking-wider">
+                    {liveStats.rankTier}
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] text-slate-500/60 font-display tracking-wider mt-1">
+                {liveStats.server} · {liveStats.region}
               </p>
             </div>
-
-            <Badge
-              variant="outline"
-              className="shrink-0 text-neon-blue border-neon-blue/30 text-[10px] font-display tracking-wider px-2"
-            >
-              {liveStats.region}
-            </Badge>
           </div>
 
-          <Separator className="bg-cyber-border" />
+          <Separator className="my-4 bg-white/[0.04]" />
 
-          {/* Live Status — pulsing green dot */}
-          <div className="flex items-center gap-2.5">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]" />
-            </span>
-            <span className="text-xs text-green-400 font-display tracking-[0.15em] uppercase">
-              {liveStats.status}
-            </span>
+          {/* LP / Win Rate / KDA */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: "LP", value: liveStats.lp.toLocaleString(), accent: rank.text },
+              { label: "WIN RATE", value: `${liveStats.winRate}%`, accent: liveStats.winRate >= 52 ? "text-green-400" : "text-slate-300" },
+              { label: "KDA", value: liveStats.kda.toFixed(1), accent: liveStats.kda >= 4 ? "text-neon-blue" : "text-slate-300" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="text-center py-2.5 rounded-md bg-white/[0.02] border border-white/[0.04]"
+              >
+                <p className={cn("text-base font-display font-bold tabular-nums", stat.accent)}>
+                  {stat.value}
+                </p>
+                <p className="text-[8px] text-slate-500/60 font-display tracking-[0.2em] uppercase mt-0.5">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
           </div>
         </GlassCard>
 
-        {/* ════════════════════════════════════════════════
-            Section 2 — Rank Showcase (The Centerpiece)
-            ════════════════════════════════════════════════ */}
-        <GlassCard className="p-4 gap-3">
-          {/* Section label */}
-          <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500 font-display">
-            /// Current Standing
-          </p>
-
-          {/* Rank Name — glowing display text */}
-          <div className="text-center py-1">
-            <h2
-              className={cn(
-                "text-4xl font-bold font-display tracking-[0.12em] uppercase leading-none",
-                rank.text,
-              )}
-            >
-              {liveStats.rank}
-            </h2>
-            <p className="text-sm text-slate-400 font-display tracking-[0.15em] mt-1.5">
-              TIER {liveStats.rankTier} &middot;{" "}
-              <span className="text-slate-200 font-semibold">{liveStats.lp.toLocaleString()} LP</span>
-            </p>
+        {/*─── Section 2: Performance ───*/}
+        <GlassCard className="p-5 rounded-lg">
+          <div className="flex items-center gap-2 mb-4">
+            <Crosshair size={13} className="text-neon-blue/70" />
+            <h4 className="text-[10px] font-display font-semibold uppercase tracking-[0.25em] text-slate-400/80">
+              Performance
+            </h4>
           </div>
 
-          <Separator className="bg-cyber-border" />
-
-          {/* Win / Loss Progress Bar */}
-          <div>
-            <div className="flex justify-between text-xs mb-2">
-              <span className="text-green-400 font-display tracking-wider font-semibold">
-                {liveStats.wins}W
-              </span>
-              <span className="text-slate-500 font-display tracking-wider text-[10px]">
-                {totalGames} GAMES
-              </span>
-              <span className="text-red-400 font-display tracking-wider font-semibold">
-                {liveStats.losses}L
-              </span>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="py-3 px-3 rounded-md bg-white/[0.02] border border-white/[0.04]">
+              <p className="text-lg font-display font-bold text-slate-100 tabular-nums">
+                {totalGames}
+              </p>
+              <p className="text-[9px] text-slate-500/60 font-display tracking-wider uppercase mt-0.5">
+                Total Games
+              </p>
             </div>
+            <div className="py-3 px-3 rounded-md bg-white/[0.02] border border-white/[0.04]">
+              <p className="text-lg font-display font-bold text-slate-100 tabular-nums">
+                {liveStats.playtimeHours}h
+              </p>
+              <p className="text-[9px] text-slate-500/60 font-display tracking-wider uppercase mt-0.5">
+                Playtime
+              </p>
+            </div>
+          </div>
 
-            {/* Segmented tech-y bar */}
-            <div className="relative h-3 bg-cyber-darker rounded-sm border border-cyber-border overflow-hidden">
-              {/* Vertical segment lines */}
-              <div className="absolute inset-0 flex pointer-events-none">
-                {Array.from({ length: 20 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 border-r border-cyber-darker/60 last:border-r-0"
-                  />
-                ))}
-              </div>
-              {/* Win fill */}
+          {/* Win/Loss bar */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-[10px] text-slate-500/60 font-display tracking-wider mb-1.5">
+              <span>{liveStats.wins}W</span>
+              <span>{winPct}%</span>
+              <span>{liveStats.losses}L</span>
+            </div>
+            <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
               <div
-                className={cn(
-                  "absolute inset-y-0 left-0 rounded-sm transition-all duration-700",
-                  rank.bar,
-                )}
+                className={cn("h-full rounded-full transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]", rank.bar)}
                 style={{ width: `${winPct}%` }}
               />
             </div>
-
-            {/* Win Rate percentage */}
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-[10px] text-slate-500 font-display tracking-[0.2em] uppercase">
-                Win Rate
-              </span>
-              <span
-                className={cn(
-                  "text-base font-bold font-display tabular-nums",
-                  winPct >= 55 ? "text-green-400" : "text-slate-300",
-                )}
-              >
-                {winPct}%
-              </span>
-            </div>
-          </div>
-
-          {/* Stat tiles — KDA & Playtime */}
-          <div className="grid grid-cols-2 gap-2.5 pt-0.5">
-            <div className="bg-cyber-darker/60 rounded-sm p-2.5 border border-cyber-border">
-              <p className="text-lg font-bold font-display text-neon-blue tabular-nums">
-                {liveStats.kda.toFixed(1)}
-              </p>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-display">
-                KDA Ratio
-              </p>
-            </div>
-            <div className="bg-cyber-darker/60 rounded-sm p-2.5 border border-cyber-border">
-              <p className="text-lg font-bold font-display text-neon-purple tabular-nums">
-                {(liveStats.playtimeHours / 1000).toFixed(1)}K
-              </p>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-display">
-                Hours
-              </p>
-            </div>
           </div>
         </GlassCard>
 
-        {/* ════════════════════════════════════════════════
-            Section 3 — Tactical Readout (Recent Performance)
-            ════════════════════════════════════════════════ */}
-        <GlassCard className="p-4 gap-3">
-          <div className="flex items-center gap-2">
-            <Crosshair size={14} className="text-neon-blue" />
-            <h3 className="text-xs font-display font-semibold uppercase tracking-[0.3em] text-slate-400">
-              /// Recent Performance
-            </h3>
+        {/*─── Section 3: Main Champions ───*/}
+        <GlassCard className="p-5 rounded-lg">
+          <div className="flex items-center gap-2 mb-4">
+            <Activity size={13} className="text-neon-gold/70" />
+            <h4 className="text-[10px] font-display font-semibold uppercase tracking-[0.25em] text-slate-400/80">
+              Main Champions
+            </h4>
           </div>
 
-          <div className="space-y-3.5">
+          <div className="space-y-3">
             {liveStats.mainChampions.map((champ) => {
-              const isHighKDA = champ.kda >= 4.0
-              const isHighWR = champ.winRate >= 60
-
+              const isHighWR = champ.winRate >= 52
               return (
-                <div key={champ.name} className="group">
-                  <div className="flex items-center gap-3">
-                    {/* Champion icon */}
-                    <div className="w-10 h-10 rounded-sm bg-cyber-darker border border-cyber-border flex items-center justify-center overflow-hidden shrink-0">
-                      <Avatar className="h-10 w-10 rounded-sm">
-                        <AvatarImage src={champ.imageUrl} alt={champ.name} />
-                        <AvatarFallback className="rounded-sm bg-cyber-surface text-slate-500 text-xs font-display font-bold">
-                          {champ.name.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
+                <div
+                  key={champ.name}
+                  className="flex items-center gap-3 py-2 px-2.5 rounded-md hover:bg-white/[0.02] transition-all duration-200"
+                >
+                  <Avatar className="h-10 w-10 rounded-md ring-1 ring-white/[0.06]">
+                    <AvatarImage src={champ.imageUrl} alt={champ.name} className="object-cover" />
+                    <AvatarFallback className="bg-cyber-surface text-slate-500 text-[10px] rounded-md">
+                      {champ.name.slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
 
-                    <div className="flex-1 min-w-0">
-                      {/* Name + KDA */}
-                      <div className="flex justify-between items-baseline">
-                        <p className="text-sm text-slate-300 truncate font-medium">
-                          {champ.name}
-                        </p>
-                        <p
-                          className={cn(
-                            "text-sm font-bold font-display ml-2 tabular-nums",
-                            isHighKDA
-                              ? "text-neon-gold [text-shadow:0_0_6px_rgba(200,169,81,0.3)]"
-                              : "text-slate-400",
-                          )}
-                        >
-                          {champ.kda.toFixed(1)} KDA
-                        </p>
-                      </div>
-
-                      {/* Win rate bar */}
-                      <div className="flex items-center gap-2 mt-1">
-                        <div className="flex-1 h-1.5 bg-cyber-darker rounded-full border border-cyber-border overflow-hidden">
-                          <div
-                            className={cn(
-                              "h-full rounded-full transition-all",
-                              isHighWR ? rank.bar : "bg-slate-600",
-                            )}
-                            style={{ width: `${champ.winRate}%` }}
-                          />
-                        </div>
-                        <span
-                          className={cn(
-                            "text-[11px] font-display font-semibold w-8 text-right tabular-nums",
-                            isHighWR
-                              ? "text-neon-blue [text-shadow:0_0_6px_rgba(0,212,255,0.3)]"
-                              : "text-slate-500",
-                          )}
-                        >
-                          {champ.winRate}%
-                        </span>
-                      </div>
-
-                      {/* Games played */}
-                      <p className="text-[10px] text-slate-500 mt-0.5 font-display tracking-wider">
-                        {champ.games} GAMES
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[13px] text-slate-200 font-medium truncate">
+                        {champ.name}
                       </p>
+                      <span className="text-[11px] text-slate-400 tabular-nums ml-2">
+                        {champ.kda.toFixed(1)} KDA
+                      </span>
                     </div>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <div className="flex-1 h-1 rounded-full bg-white/[0.04] overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                            isHighWR ? rank.bar : "bg-slate-600/70",
+                          )}
+                          style={{ width: `${champ.winRate}%` }}
+                        />
+                      </div>
+                      <span
+                        className={cn(
+                          "text-[10px] font-display font-bold w-8 text-right tabular-nums",
+                          isHighWR
+                            ? "text-neon-blue [text-shadow:0_0_4px_rgba(0,212,255,0.25)]"
+                            : "text-slate-500/60",
+                        )}
+                      >
+                        {champ.winRate}%
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-500/50 mt-1 font-display tracking-wider">
+                      {champ.games} GAMES
+                    </p>
                   </div>
                 </div>
               )
@@ -430,69 +348,65 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
           </div>
         </GlassCard>
 
-        {/* ════════════════════════════════════════════════
-            Section 4 — Sync / Connect Account
-            ════════════════════════════════════════════════ */}
+        {/*─── Section 4: Sync / Connect ───*/}
         <button
           type="button"
           onClick={handleSync}
           disabled={syncPhase !== "idle"}
           className={cn(
-            "w-full group relative overflow-hidden rounded-sm border px-4 py-3 text-left transition-all cursor-pointer",
+            "w-full group relative overflow-hidden rounded-lg border px-4 py-3.5 text-left transition-all duration-300 cursor-pointer",
             syncPhase === "success"
-              ? "border-green-400/40 bg-green-400/5"
+              ? "border-green-400/30 bg-green-400/[0.04]"
               : syncPhase === "syncing"
-                ? "border-neon-blue/30 bg-neon-blue/5 cursor-wait"
-                : "border-cyber-border bg-cyber-darker/80 hover:border-neon-blue/40 hover:bg-cyber-surface/80",
+                ? "border-neon-blue/25 bg-neon-blue/[0.04] cursor-wait"
+                : "border-white/[0.06] bg-white/[0.02] hover:border-neon-blue/30 hover:bg-white/[0.04]",
           )}
         >
-          {/* Subtle hover glow fill — only in idle state */}
           {syncPhase === "idle" && (
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-sm shadow-[inset_0_0_40px_rgba(0,212,255,0.04)]" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg shadow-[inset_0_0_40px_rgba(0,212,255,0.03)]" />
           )}
 
-          {/* Syncing glow pulse */}
           {syncPhase === "syncing" && (
-            <div className="absolute inset-0 bg-neon-blue/5 animate-pulse pointer-events-none rounded-sm" />
+            <div className="absolute inset-0 bg-neon-blue/[0.03] animate-pulse pointer-events-none rounded-lg" />
           )}
 
           <div className="relative flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               {syncPhase === "syncing" ? (
                 <Loader2 size={14} className="text-neon-blue animate-spin" />
               ) : syncPhase === "success" ? (
                 <CheckCircle size={14} className="text-green-400" />
               ) : (
-                <Activity size={14} className="text-slate-500 group-hover:text-neon-blue transition-colors" />
+                <Activity size={13} className="text-slate-500/70 group-hover:text-neon-blue transition-colors duration-200" />
               )}
               <span
                 className={cn(
-                  "text-xs font-display font-semibold uppercase tracking-[0.2em] transition-colors",
+                  "text-[11px] font-display font-semibold uppercase tracking-[0.18em] transition-colors duration-200",
                   syncPhase === "syncing" && "text-neon-blue",
                   syncPhase === "success" && "text-green-400",
-                  syncPhase === "idle" && "text-slate-500 group-hover:text-neon-blue",
+                  syncPhase === "idle" && "text-slate-400/70 group-hover:text-neon-blue",
                 )}
               >
                 {syncPhase === "syncing"
                   ? "Syncing with Riot Server..."
                   : syncPhase === "success"
-                    ? "Riot account synced successfully!"
+                    ? "Riot account synced!"
                     : "Force Sync Data"}
               </span>
             </div>
             {syncPhase === "idle" && (
               <ChevronRight
                 size={14}
-                className="text-slate-600 group-hover:text-neon-blue group-hover:translate-x-0.5 transition-all"
+                className="text-slate-600/50 group-hover:text-neon-blue group-hover:translate-x-0.5 transition-all duration-200"
               />
             )}
           </div>
           <p
             className={cn(
-              "relative text-[10px] mt-1 transition-colors font-display tracking-wider",
-              syncPhase === "syncing" && "text-neon-blue/60",
-              syncPhase === "success" && "text-green-400/60",
-              syncPhase === "idle" && "text-slate-600 group-hover:text-slate-500",
+              "relative text-[9px] mt-1.5 transition-colors duration-200 font-display tracking-wider",
+              syncPhase === "syncing" && "text-neon-blue/50",
+              syncPhase === "success" && "text-green-400/50",
+              syncPhase === "idle" && "text-slate-600/50 group-hover:text-slate-500/70",
             )}
           >
             {syncPhase === "syncing"
@@ -507,3 +421,5 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
     </aside>
   )
 }
+
+

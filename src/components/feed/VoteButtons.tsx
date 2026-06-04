@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useOptimistic, useTransition } from "react"
 import { useSession } from "next-auth/react"
@@ -28,7 +28,6 @@ export function VoteButtons({ postId, upvotes, downvotes, userVote, size = "sm" 
       const newType = action.type
 
       if (prevVote === newType) {
-        // Toggle off
         return {
           upvotes: newType === "upvote" ? state.upvotes - 1 : state.upvotes,
           downvotes: newType === "downvote" ? state.downvotes - 1 : state.downvotes,
@@ -37,7 +36,6 @@ export function VoteButtons({ postId, upvotes, downvotes, userVote, size = "sm" 
       }
 
       if (prevVote === null) {
-        // New vote
         return {
           upvotes: newType === "upvote" ? state.upvotes + 1 : state.upvotes,
           downvotes: newType === "downvote" ? state.downvotes + 1 : state.downvotes,
@@ -45,7 +43,6 @@ export function VoteButtons({ postId, upvotes, downvotes, userVote, size = "sm" 
         }
       }
 
-      // Switch vote
       return {
         upvotes: newType === "upvote" ? state.upvotes + 1 : state.upvotes - 1,
         downvotes: newType === "downvote" ? state.downvotes + 1 : state.downvotes - 1,
@@ -55,44 +52,45 @@ export function VoteButtons({ postId, upvotes, downvotes, userVote, size = "sm" 
   )
 
   const score = optimistic.upvotes - optimistic.downvotes
-  const iconClass = size === "lg" ? "size-[26px]" : "size-[22px]"
+  const iconClass = size === "lg" ? "size-[24px]" : "size-[20px]"
   const scoreClass = size === "lg" ? "text-sm" : "text-xs"
-  const gapClass = size === "lg" ? "gap-0.5 px-4 py-4" : "gap-0.5 px-3 py-3"
-  const btnPadding = size === "lg" ? "p-1" : "p-0.5"
+  const gapClass = size === "lg" ? "gap-1 px-4 py-5" : "gap-0.5 px-3 py-4"
+  const btnPadding = size === "lg" ? "p-1.5" : "p-1"
 
   const handleVote = (type: "upvote" | "downvote") => {
     if (status !== "authenticated" || isPending) return
     startTransition(() => {
       addOptimistic({ type })
-      votePost(postId, type).catch(() => {
-        // Optimistic update will revert on re-render from router.refresh()
-      })
+      votePost(postId, type).catch(() => {})
     })
   }
 
   return (
-    <div className={cn("flex flex-col items-center bg-cyber-dark/60 border-r border-white/[0.04]", gapClass)}>
+    <div className={cn(
+      "flex flex-col items-center bg-cyber-dark/50 border-r border-white/[0.03]",
+      gapClass
+    )}>
       <button
         onClick={() => handleVote("upvote")}
         disabled={isPending}
         className={cn(
-          "transition-colors rounded-sm hover:bg-neon-gold/10",
+          "rounded-md transition-all duration-200 active:scale-90",
           btnPadding,
           optimistic.userVote === "upvote"
-            ? "text-green-400"
-            : "text-slate-600 hover:text-neon-gold",
-          status !== "authenticated" && "cursor-not-allowed opacity-50",
+            ? "text-green-400 bg-green-400/[0.08] shadow-[0_0_8px_rgba(74,222,128,0.15)]"
+            : "text-slate-500 hover:text-neon-gold hover:bg-neon-gold/[0.06]",
+          status !== "authenticated" && "cursor-not-allowed opacity-40",
         )}
         title={status !== "authenticated" ? "Sign in to vote" : "Upvote"}
       >
-        <ArrowBigUp className={iconClass} strokeWidth={1.5} />
+        <ArrowBigUp className={cn(iconClass, "transition-transform duration-200")} strokeWidth={1.5} />
       </button>
 
       <span
         className={cn(
-          "font-bold font-display tabular-nums select-none",
+          "font-bold font-display tabular-nums select-none transition-all duration-300",
           scoreClass,
-          score > 0 ? "text-neon-gold" : score < 0 ? "text-red-400" : "text-slate-500",
+          score > 0 ? "text-neon-gold" : score < 0 ? "text-red-400" : "text-slate-500/60",
         )}
       >
         {score > 0 ? `+${score}` : score}
@@ -102,16 +100,16 @@ export function VoteButtons({ postId, upvotes, downvotes, userVote, size = "sm" 
         onClick={() => handleVote("downvote")}
         disabled={isPending}
         className={cn(
-          "transition-colors rounded-sm hover:bg-red-400/10",
+          "rounded-md transition-all duration-200 active:scale-90",
           btnPadding,
           optimistic.userVote === "downvote"
-            ? "text-red-400"
-            : "text-slate-600 hover:text-red-400",
-          status !== "authenticated" && "cursor-not-allowed opacity-50",
+            ? "text-red-400 bg-red-400/[0.08] shadow-[0_0_8px_rgba(239,68,68,0.15)]"
+            : "text-slate-500 hover:text-red-400 hover:bg-red-400/[0.06]",
+          status !== "authenticated" && "cursor-not-allowed opacity-40",
         )}
         title={status !== "authenticated" ? "Sign in to vote" : "Downvote"}
       >
-        <ArrowBigDown className={iconClass} strokeWidth={1.5} />
+        <ArrowBigDown className={cn(iconClass, "transition-transform duration-200")} strokeWidth={1.5} />
       </button>
     </div>
   )

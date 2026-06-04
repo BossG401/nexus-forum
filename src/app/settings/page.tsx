@@ -1,4 +1,4 @@
-import { getServerSession } from "next-auth"
+﻿import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Shield, User, Globe, Trophy, Terminal } from "lucide-react"
@@ -16,7 +16,6 @@ export default async function SettingsPage() {
     redirect("/api/auth/signin")
   }
 
-  // Fetch the user's current data from Prisma
   const dbUser = await prisma.user.findUnique({
     where: { id: session.user.id },
   })
@@ -26,33 +25,33 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl animate-fade-in-up">
       {/* Back link */}
       <Link
         href="/"
-        className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-neon-blue transition-colors mb-6 font-display tracking-wider uppercase group"
+        className="inline-flex items-center gap-1.5 text-xs text-slate-500/70 hover:text-neon-blue transition-all duration-200 mb-8 font-display tracking-wider uppercase group"
       >
-        <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+        <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform duration-200" />
         Back to Feed
       </Link>
 
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <Shield size={22} className="text-neon-purple" />
-        <h1 className="text-2xl font-bold font-display neon-text-purple tracking-[0.2em] uppercase">
+      <div className="flex items-center gap-3 mb-10">
+        <Shield size={20} className="text-neon-purple/80" />
+        <h1 className="text-xl font-bold font-display neon-text-purple tracking-[0.25em] uppercase">
           /// Settings
         </h1>
       </div>
 
       {/* Profile identity card */}
-      <div className="glass-subtle rounded-lg p-5 mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <Terminal size={14} className="text-neon-purple" />
-          <h2 className="text-sm font-display font-semibold text-slate-300 tracking-[0.2em] uppercase">
+      <div className="glass-subtle rounded-lg p-7 mb-8">
+        <div className="flex items-center gap-2.5 mb-5">
+          <Terminal size={13} className="text-neon-purple/70" />
+          <h2 className="text-[11px] font-display font-semibold text-slate-300/80 tracking-[0.25em] uppercase">
             Summoner Identity
           </h2>
         </div>
-        <p className="text-xs text-slate-500 mb-5 leading-relaxed">
+        <p className="text-[13px] text-slate-500/60 mb-7 leading-relaxed">
           Update your summoner profile. Changes will be reflected immediately across NEXUS — your Navbar,
           Profile page, and tactical dispatches.
         </p>
