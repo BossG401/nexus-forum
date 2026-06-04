@@ -28,7 +28,7 @@ interface PrismaAuthor {
 function mapAuthor(author: PrismaAuthor): Post["author"] {
   return {
     name: author.name ?? "Unknown Summoner",
-    avatarUrl: author.image ?? "/avatars/default.png",
+    avatarUrl: author.image ?? "/avatars/default.svg",
     rank: (author.lolRank as PostRank) ?? "Gold",
   }
 }
@@ -39,6 +39,7 @@ interface PrismaPostInput {
   title: string
   content: string
   fullContent: string | null
+  imageUrl: string | null
   tag: string
   tagAccent: string
   upvotes: number
@@ -55,6 +56,7 @@ export function mapPrismaPost(p: PrismaPostInput): Post {
     title: p.title,
     content: p.content,
     fullContent: p.fullContent ?? undefined,
+    imageUrl: p.imageUrl ?? null,
     tag: p.tag,
     tagAccent: p.tagAccent as Post["tagAccent"],
     upvotes: p.upvotes,

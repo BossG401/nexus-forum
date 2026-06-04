@@ -8,7 +8,7 @@ export const mockPosts: Post[] = [
     fullContent: `# TL;DR\n\nYone's E (Soul Unbound) has a hidden 0.5-second CC buffer window that allows him to ignore crowd control during the recast animation. This isn't documented anywhere in the tooltip or wiki.\n\n## The Frame Data\n\nAfter 200 games of testing in Practice Tool and Ranked (Diamond II elo), here's the exact breakdown:\n\n- **Frames 1-8 (0.0s - 0.25s)**: Yone is fully targetable but has CC immunity during the snapback\n- **Frames 9-15 (0.25s - 0.5s)**: Partial immunity — knockups and suppressions still land, but roots, stuns, and slows are completely negated\n- **Frames 16+ (0.5s+)**: Normal vulnerability resumes\n\n## Why This Matters\n\nAt 60fps, that 0.5s window is 30 frames. The average human reaction time to visual stimuli is ~250ms (15 frames). So by the time you SEE Yone recast and press your CC button, you're already inside the immunity window.\n\nThis means Yone effectively has a built-in Cleanse on a 20-second cooldown. For comparison, the actual Cleanse summoner spell has a 210-second cooldown.\n\n## The Fix\n\nRiot should either:\n1. Remove the buffer entirely (make him vulnerable frame 1 of recast)\n2. Add a clear visual indicator (golden glow or distinct SFX when immunity is active)\n3. Reduce the window to 0.15s — just enough to prevent packet loss jank, not enough to dodge abilities\n\n## Data Table\n\n| Scenario | Success Rate | Sample Size |\n|----------|-------------|-------------|\n| Dodge Morgana Q | 78% | 50 attempts |\n| Dodge Ahri Charm | 82% | 45 attempts |\n| Dodge Leona E | 91% | 35 attempts |\n| Dodge Malzahar R | 12% | 40 attempts |\n\nThoughts? Has anyone else tested this at higher elo?`,
     author: {
       name: "Faker_Fan_99",
-      avatarUrl: "/avatars/user1.png",
+      avatarUrl: "/avatars/user1.svg",
       rank: "Challenger",
     },
     tag: "#Gameplay",
@@ -24,7 +24,7 @@ export const mockPosts: Post[] = [
     content: "Oner's Lee Sin secured the impossible Baron steal at 23:47. The crowd reaction at LoL Park was absolutely deafening. Here's my breakdown of the play...",
     author: {
       name: "LCK_Enjoyer",
-      avatarUrl: "/avatars/user2.png",
+      avatarUrl: "/avatars/user2.svg",
       rank: "Master",
     },
     tag: "#Esports",
@@ -40,7 +40,7 @@ export const mockPosts: Post[] = [
     content: "We have Top/Mid/ADC filled. Need a jungle who can play Sejuani/Maokai and a support with Thresh/Nautilus pool. We're aiming to win, last Clash we placed 2nd...",
     author: {
       name: "ClashKing_EUW",
-      avatarUrl: "/avatars/user3.png",
+      avatarUrl: "/avatars/user3.svg",
       rank: "Diamond",
     },
     tag: "#LookingForGroup",
@@ -57,7 +57,7 @@ export const mockPosts: Post[] = [
     fullContent: `# Patch 25.12 — The "Shurima Renaissance" Update\n\n## Champion Changes\n\n### Azir — BUFFED\n- **Soldier Auto-Attack Damage**: 50-150 (based on level) → 60-180 + 35% AP\n- **Conquering Sands (Q)**: Cooldown reduced 14-6s → 12-5s\n- **Analysis**: The AP ratio on soldier autos is MASSIVE. Nashor's Tooth rush now gives ~15% more DPS compared to Luden's. Expect Azir to return to pro play immediately.\n\n### Yone — NERFED\n- **Soul Unbound (E)**: Added 0.25s delay before CC immunity kicks in on recast\n- **Way of the Hunter (Passive)**: Crit conversion 2.5x → 2.25x\n- **Analysis**: Finally. The CC buffer window is now tight enough that you can actually punish bad E usage. The passive nerf is a ~8% DPS loss at full build.\n\n### K'Sante — ADJUSTED\n- **All Out**: Bonus AD 10-40 → 5-25, Bonus true damage 35-65% → 25-55%\n- **Base HP**: 610 → 625\n- **Analysis**: Less oppressive in All Out, slightly tankier outside of it. Net nerf for high elo.\n\n## Rune Changes\n\n### Phase Rush — REWORKED\n- **Move Speed**: 30-60% → 20-40%\n- **NEW**: Now grants 15% Tenacity + 15% Slow Resist for the duration\n- **Analysis**: Less raw speed, more utility. Huge for juggernauts (Darius, Garen) against control mage comps.\n\n### Conqueror — ADJUSTED\n- **Adaptive per stack**: 2-4 → 1.5-4.5 (scales harder with level)\n- **Max stacks**: 12 → 10\n- **Analysis**: Faster to stack, weaker early, stronger late. Good change.\n\n## Full patch goes live Wednesday 3 AM PT.`,
     author: {
       name: "PatchNotesBot",
-      avatarUrl: "/avatars/user4.png",
+      avatarUrl: "/avatars/user4.svg",
       rank: "Platinum",
     },
     tag: "#PatchNotes",
@@ -90,7 +90,7 @@ export const mockPosts: Post[] = [
     content: "After 3 months of waiting, the K/DA ALL OUT Kaisa cosplay is here. The quality is amazing — way better than I expected. Check the imgur album for full pics...",
     author: {
       name: "CosplayQueen",
-      avatarUrl: "/avatars/user5.png",
+      avatarUrl: "/avatars/user5.svg",
       rank: "Gold",
     },
     tag: "#Memes",
@@ -106,7 +106,7 @@ export const mockPosts: Post[] = [
     content: "Did the math on the new Azir changes in 25.12. Nashor's Tooth first item now gives 15% more DPS compared to Luden's. Sorcery boots + Nashor's into Shadowflame is the new core build...",
     author: {
       name: "Azir_OneTrick",
-      avatarUrl: "/avatars/user6.png",
+      avatarUrl: "/avatars/user6.svg",
       rank: "Grandmaster",
     },
     tag: "#Champions",

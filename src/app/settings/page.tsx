@@ -27,7 +27,7 @@ export default async function SettingsPage() {
           <h2 className="text-[9px] font-display font-black text-neon-purple/55 tracking-[0.4em] uppercase">SUMMONER IDENTITY</h2>
         </div>
         <p className="text-[11px] text-slate-400/60 mb-7 leading-relaxed font-mono">Update your summoner profile. Changes propagate across all NEXUS systems immediately.</p>
-        <SettingsForm defaultName={dbUser.name ?? ""} defaultServer={dbUser.server ?? ""} defaultRank={dbUser.lolRank ?? ""} regions={REGIONS} ranks={RANKS} />
+        <SettingsForm defaultName={dbUser.name ?? ""} defaultServer={dbUser.server ?? ""} defaultRank={dbUser.lolRank ?? ""} defaultImage={dbUser.image ?? null} regions={REGIONS} ranks={RANKS} />
       </div>
     </div>
   )

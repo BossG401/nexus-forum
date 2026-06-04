@@ -40,6 +40,17 @@ export function PostCard({ post }: PostCardProps) {
             <h3 className="text-base font-display font-bold text-slate-100 group-hover:text-neon-gold-hot transition-all duration-300 leading-snug mb-1 tracking-wide glitch-text">{post.title}</h3>
           </Link>
           <p className="text-sm text-slate-400/80 leading-snug line-clamp-3 mb-2.5 font-mono">{post.content}</p>
+          {post.imageUrl && (
+            <div className="mb-3 overflow-hidden rounded-sm border border-cyber-border/60">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={post.imageUrl}
+                alt="Post screenshot"
+                className="w-full max-h-48 object-cover"
+                loading="lazy"
+              />
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Avatar className="h-6 w-6 ring-1 ring-white/[0.08] clip-diamond transition-all duration-200 group-hover:ring-neon-blue/20">

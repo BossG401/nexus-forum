@@ -2,7 +2,8 @@ import { getServerSession } from "next-auth"
 import { prisma } from "@/lib/prisma"
 import { mapPrismaPost } from "@/lib/mappers"
 import { authOptions } from "@/lib/auth"
-import { Feed } from "@/components/feed/Feed"
+import { InfiniteFeed } from "@/components/feed/InfiniteFeed"
+import { PAGE_SIZE } from "@/lib/constants"
 import { mockCategories } from "@/data/mock-categories"
 
 export default async function HomePage({
@@ -18,12 +19,16 @@ export default async function HomePage({
     ? mockCategories.find((c) => c.id === categoryId)?.name ?? null
     : null
 
-  // Fetch posts from database, optionally filtered by category
+  // Fetch first page of posts from database, optionally filtered by category
   const dbPosts = await prisma.post.findMany({
     where: categoryTag ? { tag: categoryTag } : {},
     include: { author: true },
     orderBy: { createdAt: "desc" },
+    take: PAGE_SIZE,
   })
+
+  const hasMore = dbPosts.length === PAGE_SIZE
+  const nextCursor = hasMore ? dbPosts[dbPosts.length - 1].id : null
 
   // Fetch current user's votes for all displayed posts
   const session = await getServerSession(authOptions)
@@ -39,9 +44,17 @@ export default async function HomePage({
 
   const voteMap = new Map(userVotes.map((v) => [v.postId, v.type as "upvote" | "downvote"]))
 
-  const allPosts = dbPosts.map((p) =>
+  const posts = dbPosts.map((p) =>
     mapPrismaPost({ ...p, userVote: voteMap.get(p.id) ?? null }),
   )
 
-  return <Feed posts={allPosts} activeCategory={categoryId} />
+  return (
+    <InfiniteFeed
+      key={categoryId ?? "all"}
+      initialPosts={posts}
+      initialHasMore={hasMore}
+      initialCursor={nextCursor}
+      categoryId={categoryId}
+    />
+  )
 }

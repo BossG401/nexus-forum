@@ -15,6 +15,7 @@ export async function updateProfile(formData: FormData) {
   const name = (formData.get("name") as string)?.trim()
   const server = (formData.get("server") as string)?.trim()
   const lolRank = (formData.get("lolRank") as string)?.trim()
+  const image = (formData.get("image") as string)?.trim() || null
 
   if (!name) {
     throw new Error("Summoner Name is required")
@@ -26,6 +27,7 @@ export async function updateProfile(formData: FormData) {
       name,
       server: server || null,
       lolRank: lolRank || null,
+      image,
     },
   })
 

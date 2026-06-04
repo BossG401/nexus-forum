@@ -6,7 +6,7 @@ export const mockComments: Comment[] = [
     postId: "p1",
     author: {
       name: "Azir_OneTrick",
-      avatarUrl: "/avatars/user6.png",
+      avatarUrl: "/avatars/user6.svg",
       rank: "Grandmaster",
     },
     content:
@@ -32,7 +32,7 @@ export const mockComments: Comment[] = [
     postId: "p1",
     author: {
       name: "LCK_Enjoyer",
-      avatarUrl: "/avatars/user2.png",
+      avatarUrl: "/avatars/user2.svg",
       rank: "Master",
     },
     content:
@@ -45,7 +45,7 @@ export const mockComments: Comment[] = [
     postId: "p1",
     author: {
       name: "ClashKing_EUW",
-      avatarUrl: "/avatars/user3.png",
+      avatarUrl: "/avatars/user3.svg",
       rank: "Diamond",
     },
     content:
@@ -58,7 +58,7 @@ export const mockComments: Comment[] = [
     postId: "p1",
     author: {
       name: "PatchNotesBot",
-      avatarUrl: "/avatars/user4.png",
+      avatarUrl: "/avatars/user4.svg",
       rank: "Platinum",
     },
     content:
@@ -71,7 +71,7 @@ export const mockComments: Comment[] = [
     postId: "p1",
     author: {
       name: "CosplayQueen",
-      avatarUrl: "/avatars/user5.png",
+      avatarUrl: "/avatars/user5.svg",
       rank: "Gold",
     },
     content:
@@ -84,7 +84,7 @@ export const mockComments: Comment[] = [
     postId: "p4",
     author: {
       name: "Faker_Fan_99",
-      avatarUrl: "/avatars/user1.png",
+      avatarUrl: "/avatars/user1.svg",
       rank: "Challenger",
     },
     content:
@@ -97,7 +97,7 @@ export const mockComments: Comment[] = [
     postId: "p4",
     author: {
       name: "LCK_Enjoyer",
-      avatarUrl: "/avatars/user2.png",
+      avatarUrl: "/avatars/user2.svg",
       rank: "Master",
     },
     content:

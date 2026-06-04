@@ -254,6 +254,18 @@ export default async function PostDetailPage({
 
             <Separator className="bg-cyber-border mb-5" />
 
+            {/* Post image */}
+            {post.imageUrl && (
+              <div className="mb-5 overflow-hidden rounded-sm border border-cyber-border/60">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={post.imageUrl}
+                  alt="Post screenshot"
+                  className="w-full max-h-96 object-cover"
+                />
+              </div>
+            )}
+
             {/* Full post body */}
             <PostBody content={post.fullContent ?? post.content} />
 

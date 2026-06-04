@@ -67,6 +67,7 @@ export interface Post {
   title: string
   content: string
   fullContent?: string
+  imageUrl?: string | null
   author: {
     name: string
     avatarUrl: string
