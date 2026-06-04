@@ -198,9 +198,9 @@ export default async function PostDetailPage({
           />
 
           {/* Content */}
-          <div className="flex-1 min-w-0 p-5">
+          <div className="flex-1 min-w-0 p-4">
             {/* Header: tag + time */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-2">
               <Badge
                 variant="outline"
                 className={cn(

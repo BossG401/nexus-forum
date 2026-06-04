@@ -1,6 +1,6 @@
 ﻿import { Suspense } from "react"
 import type { Metadata } from "next"
-import { Inter, Rajdhani } from "next/font/google"
+import { Orbitron, JetBrains_Mono } from "next/font/google"
 import { getServerSession } from "next-auth"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AuthProvider } from "@/components/auth/AuthProvider"
@@ -14,20 +14,21 @@ import { prisma } from "@/lib/prisma"
 import type { Category, UserStats } from "@/lib/types"
 import "./globals.css"
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-})
-
-const rajdhani = Rajdhani({
-  weight: ["400", "500", "600", "700"],
+const orbitron = Orbitron({
+  weight: ["400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
   variable: "--font-display",
 })
 
+const jetbrains = JetBrains_Mono({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-mono",
+})
+
 export const metadata: Metadata = {
-  title: "NEXUS — LoL Esports Forum",
-  description: "Hardcore League of Legends esports forum with real gaming stats, ranks, and discussions.",
+  title: "NEXUS // COMMAND CENTER",
+  description: "Hardcore League of Legends esports command center. Tactical intel, rank analysis, and combat dispatches.",
 }
 
 function deriveUserStats(
@@ -40,7 +41,6 @@ function deriveUserStats(
   } | null,
 ): UserStats {
   if (!dbUser) return mockUserStats
-
   return {
     ...mockUserStats,
     summonerName: dbUser.name ?? mockUserStats.summonerName,
@@ -61,7 +61,6 @@ export default async function RootLayout({
     by: ["tag"],
     _count: { id: true },
   })
-
   const countMap = new Map(counts.map((c) => [c.tag, c._count.id]))
 
   const categories: Category[] = mockCategories.map((cat) => ({
@@ -72,39 +71,34 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions)
   let dbUser = null
   if (session?.user?.id) {
-    dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    })
+    dbUser = await prisma.user.findUnique({ where: { id: session.user.id } })
   }
   const userStats = deriveUserStats(dbUser)
 
   return (
-    <html lang="en" className={`dark ${inter.variable} ${rajdhani.variable}`}>
-      <body className="bg-cyber-darker text-slate-200 antialiased min-h-screen font-sans">
+    <html lang="en" className={`dark ${orbitron.variable} ${jetbrains.variable}`}>
+      <body className="bg-cyber-darker text-slate-200 antialiased min-h-screen font-mono scanline-overlay">
         <AuthProvider>
           <TooltipProvider>
             <Navbar categories={categories} userStats={userStats} />
 
-            {/* Desktop 3-panel grid */}
-            <div className="relative z-10 pt-16 grid grid-cols-1 lg:grid-cols-[260px_1fr] xl:grid-cols-[260px_1fr_320px] min-h-screen">
-              {/* Left Sidebar — visible lg+ */}
-              <div className="hidden lg:block sticky top-16 h-[calc(100vh-64px)] overflow-hidden border-r border-white/[0.03]">
-                <Suspense fallback={<div className="w-[260px] bg-cyber-dark" />}>
+            {/* Command Center Grid — asymmetric 3-panel */}
+            <div className="relative z-10 pt-12 grid grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[240px_1fr_340px] min-h-screen">
+              {/* Left Sidebar */}
+              <div className="hidden lg:block sticky top-12 h-[calc(100vh-48px)] overflow-hidden">
+                <Suspense fallback={<div className="w-[240px] bg-cyber-dark" />}>
                   <SidebarClient categories={categories} />
                 </Suspense>
               </div>
 
-              {/* Main content */}
-              <main className="min-h-[calc(100vh-64px)] py-8 px-6 lg:px-8 max-w-4xl w-full mx-auto">
+              {/* Main Content */}
+              <main className="min-h-[calc(100vh-48px)] py-3 px-3 lg:px-4 max-w-[1000px] w-full mx-auto">
                 {children}
               </main>
 
-              {/* Right Panel — visible xl+ */}
-              <div className="hidden xl:block sticky top-16 h-[calc(100vh-64px)] overflow-y-auto border-l border-white/[0.03]">
-                <RightPanel
-                  userStats={userStats}
-                  className="h-full"
-                />
+              {/* Right Panel */}
+              <div className="hidden xl:block sticky top-12 h-[calc(100vh-48px)] overflow-y-auto">
+                <RightPanel userStats={userStats} className="h-full" />
               </div>
             </div>
           </TooltipProvider>
