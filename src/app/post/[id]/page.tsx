@@ -1,77 +1,69 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeft, MessageCircle, Clock, Swords, ExternalLink } from "lucide-react"
+import { ArrowLeft, Clock, ExternalLink, MessageCircle } from "lucide-react"
 import { getServerSession } from "next-auth"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { VoteButtons } from "@/components/feed/VoteButtons"
 import { CommentSection } from "@/components/feed/CommentSection"
-import { prisma } from "@/lib/prisma"
-import { mapPrismaPost, mapPrismaComment } from "@/lib/mappers"
+import { VoteButtons } from "@/components/feed/VoteButtons"
 import { authOptions } from "@/lib/auth"
+import { mapPrismaComment, mapPrismaPost } from "@/lib/mappers"
+import { prisma } from "@/lib/prisma"
 import { cn } from "@/lib/utils"
-import type { Post } from "@/lib/types"
 
-const rankColors: Record<string, string> = {
-  Challenger: "text-neon-gold neon-text-gold",
-  Grandmaster: "text-red-400",
-  Master: "text-purple-400",
-  Diamond: "text-neon-blue",
-  Platinum: "text-teal-400",
-  Gold: "text-yellow-500",
+const rankStyles: Record<string, string> = {
+  Challenger: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
+  Grandmaster: "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30",
+  Master: "bg-violet-500/15 text-violet-700 dark:text-violet-300 border-violet-500/30",
+  Diamond: "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30",
+  Platinum: "bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-500/30",
+  Gold: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-300 border-yellow-500/30",
 }
 
-const tagColors: Record<string, string> = {
-  "neon-blue": "border-neon-blue/40 text-neon-blue",
-  "neon-purple": "border-neon-purple/40 text-neon-purple",
-  "neon-gold": "border-neon-gold/40 text-neon-gold",
+const tagStyles: Record<string, string> = {
+  "neon-blue": "bg-muted text-foreground border-border",
+  "neon-purple": "bg-violet-500/12 text-violet-700 dark:text-violet-300 border-violet-500/25",
+  "neon-gold": "bg-primary/12 text-primary border-primary/25",
 }
 
-// ── Simple content renderer: handles # / ## / - / | / plain text ──
 function PostBody({ content }: { content: string }) {
   const paragraphs = content.split("\n\n")
 
   return (
-    <div className="prose-custom space-y-3">
-      {paragraphs.map((block, i) => {
+    <div className="space-y-4 text-[15px] leading-7 text-foreground/80">
+      {paragraphs.map((block, blockIndex) => {
         const lines = block.split("\n")
 
-        // Table detection
-        if (lines.length >= 3 && lines.every((l) => l.trim().startsWith("|"))) {
-          const rows = lines.map((l) =>
-            l
+        if (lines.length >= 3 && lines.every((line) => line.trim().startsWith("|"))) {
+          const rows = lines.map((line) =>
+            line
               .trim()
               .replace(/^\|/, "")
               .replace(/\|$/, "")
               .split("|")
-              .map((c) => c.trim()),
+              .map((cell) => cell.trim()),
           )
-
-          const isHeaderRow = rows.length >= 2 && rows[1]?.every((c) => /^[-:]+$/.test(c))
+          const isHeaderRow = rows.length >= 2 && rows[1]?.every((cell) => /^[-:]+$/.test(cell))
 
           return (
-            <div key={i} className="overflow-x-auto my-4 rounded-sm border border-cyber-border">
+            <div key={blockIndex} className="my-5 overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-sm">
-                {isHeaderRow && (
+                {isHeaderRow ? (
                   <thead>
-                    <tr className="bg-cyber-surface/50">
-                      {rows[0].map((cell, ci) => (
-                        <th
-                          key={ci}
-                          className="px-3 py-2 text-left text-xs font-display font-semibold text-neon-blue uppercase tracking-wider border-b border-cyber-border"
-                        >
+                    <tr className="bg-muted">
+                      {rows[0].map((cell, cellIndex) => (
+                        <th key={cellIndex} className="border-b border-border px-4 py-2 text-left font-semibold text-foreground">
                           {cell}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                )}
+                ) : null}
                 <tbody>
-                  {(isHeaderRow ? rows.slice(2) : rows).map((row, ri) => (
-                    <tr key={ri} className="border-b border-cyber-border/50 last:border-b-0">
-                      {row.map((cell, ci) => (
-                        <td key={ci} className="px-3 py-1.5 text-slate-400">
+                  {(isHeaderRow ? rows.slice(2) : rows).map((row, rowIndex) => (
+                    <tr key={rowIndex} className="border-b border-border last:border-b-0">
+                      {row.map((cell, cellIndex) => (
+                        <td key={cellIndex} className="px-4 py-2 text-muted-foreground">
                           {cell}
                         </td>
                       ))}
@@ -83,50 +75,39 @@ function PostBody({ content }: { content: string }) {
           )
         }
 
-        // Paragraph type detection
         return (
-          <div key={i}>
-            {lines.map((line, li) => {
+          <div key={blockIndex} className="space-y-2">
+            {lines.map((line, lineIndex) => {
               if (line.startsWith("# ")) {
                 return (
-                  <h2
-                    key={li}
-                    className="text-xl font-display font-bold text-neon-gold tracking-wide mt-6 mb-2"
-                  >
+                  <h2 key={lineIndex} className="mt-7 text-2xl font-semibold tracking-tight text-foreground">
                     {line.slice(2)}
                   </h2>
                 )
               }
               if (line.startsWith("## ")) {
                 return (
-                  <h3
-                    key={li}
-                    className="text-base font-display font-semibold text-neon-blue uppercase tracking-wider mt-4 mb-1.5"
-                  >
+                  <h3 key={lineIndex} className="mt-5 text-lg font-semibold text-foreground">
                     {line.slice(3)}
                   </h3>
                 )
               }
               if (line.startsWith("- ")) {
                 return (
-                  <li key={li} className="text-slate-300 ml-4 list-disc marker:text-neon-blue/50">
+                  <li key={lineIndex} className="ml-5 list-disc marker:text-primary">
                     {line.slice(2)}
                   </li>
                 )
               }
               if (line.startsWith("**") && line.endsWith("**")) {
                 return (
-                  <p key={li} className="font-bold text-slate-200">
+                  <p key={lineIndex} className="font-semibold text-foreground">
                     {line.slice(2, -2)}
                   </p>
                 )
               }
-              if (line.trim() === "") return <br key={li} />
-              return (
-                <p key={li} className="text-slate-300 leading-relaxed">
-                  {line}
-                </p>
-              )
+              if (line.trim() === "") return <br key={lineIndex} />
+              return <p key={lineIndex}>{line}</p>
             })}
           </div>
         )
@@ -135,7 +116,6 @@ function PostBody({ content }: { content: string }) {
   )
 }
 
-// ── Page ──
 export default async function PostDetailPage({
   params,
 }: {
@@ -148,13 +128,11 @@ export default async function PostDetailPage({
     include: { author: true },
   })
 
-  if (!dbPost) {
-    notFound()
-  }
+  if (!dbPost) notFound()
 
-  // Fetch current user's vote on this post
   const session = await getServerSession(authOptions)
   let userVote: "upvote" | "downvote" | null = null
+
   if (session?.user?.id) {
     const vote = await prisma.vote.findUnique({
       where: { userId_postId: { userId: session.user.id, postId: id } },
@@ -163,32 +141,25 @@ export default async function PostDetailPage({
   }
 
   const post = mapPrismaPost({ ...dbPost, userVote })
-
-  // Fetch real comments for this post
   const dbComments = await prisma.comment.findMany({
     where: { postId: id },
     include: { author: true },
     orderBy: { createdAt: "asc" },
   })
-
   const comments = dbComments.map(mapPrismaComment)
-  const score = post.upvotes - post.downvotes
 
   return (
     <div className="max-w-3xl">
-      {/* Back link */}
       <Link
         href="/"
-        className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-neon-blue transition-colors mb-6 font-display tracking-wider uppercase group"
+        className="mb-5 inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       >
-        <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
-        Back to Feed
+        <ArrowLeft size={16} />
+        Back to discussions
       </Link>
 
-      {/* ── Expanded Post Card ── */}
-      <article className="glass-subtle rounded-lg overflow-hidden mb-8">
+      <article className="mb-8 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="flex">
-          {/* Vote Column */}
           <VoteButtons
             postId={post.id}
             upvotes={post.upvotes}
@@ -197,86 +168,55 @@ export default async function PostDetailPage({
             size="lg"
           />
 
-          {/* Content */}
-          <div className="flex-1 min-w-0 p-4">
-            {/* Header: tag + time */}
-            <div className="flex items-center gap-2 mb-2">
+          <div className="min-w-0 flex-1 p-5 sm:p-6">
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <Badge
                 variant="outline"
-                className={cn(
-                  "text-[10px] leading-tight px-1.5 py-0 rounded-sm font-semibold uppercase tracking-wider",
-                  tagColors[post.tagAccent],
-                )}
+                className={cn("h-6 rounded-full px-2.5 text-xs font-medium", tagStyles[post.tagAccent])}
               >
                 {post.tag}
               </Badge>
-              <span className="flex items-center gap-1 text-[11px] text-slate-600">
-                <Clock size={11} />
+              <span className="flex items-center gap-1.5">
+                <Clock size={14} />
                 {post.createdAt}
               </span>
             </div>
 
-            {/* Title */}
-            <h1 className="text-xl font-display font-bold text-slate-100 leading-snug mb-3">
+            <h1 className="text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
               {post.title}
             </h1>
 
-            {/* Mobile vote display */}
-            <div className="sm:hidden flex items-center gap-3 mb-3 text-xs text-slate-500">
-              <span className="flex items-center gap-1">
-                <Swords size={13} />
-                {score}
-              </span>
-              <span className="flex items-center gap-1">
-                <MessageCircle size={13} />
-                {post.commentCount}
-              </span>
-            </div>
-
-            {/* Author */}
-            <div className="flex items-center gap-2 mb-4">
-              <Avatar className="h-8 w-8 ring-1 ring-white/10">
+            <div className="mt-4 flex items-center gap-2.5">
+              <Avatar className="h-9 w-9 ring-1 ring-border">
                 <AvatarImage src={post.author.avatarUrl} alt={post.author.name} />
-                <AvatarFallback className="bg-cyber-surface text-slate-400 text-[10px]">
+                <AvatarFallback className="bg-secondary text-xs font-semibold text-secondary-foreground">
                   {post.author.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm text-slate-300 font-medium">{post.author.name}</span>
-              <span
-                className={cn(
-                  "text-[10px] font-semibold font-display uppercase tracking-wider",
-                  rankColors[post.author.rank],
-                )}
-              >
+              <span className="text-sm font-medium text-foreground">{post.author.name}</span>
+              <span className={cn("rounded-full border px-2 py-0.5 text-xs font-medium", rankStyles[post.author.rank])}>
                 {post.author.rank}
               </span>
             </div>
 
-            <Separator className="bg-cyber-border mb-5" />
-
-            {/* Post image */}
-            {post.imageUrl && (
-              <div className="mb-5 overflow-hidden rounded-sm border border-cyber-border/60">
+            {post.imageUrl ? (
+              <div className="my-6 overflow-hidden rounded-xl border border-border bg-muted">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={post.imageUrl}
-                  alt="Post screenshot"
-                  className="w-full max-h-96 object-cover"
-                />
+                <img src={post.imageUrl} alt="Post attachment" className="max-h-[520px] w-full object-cover" />
               </div>
+            ) : (
+              <div className="my-6 border-t border-border" />
             )}
 
-            {/* Full post body */}
             <PostBody content={post.fullContent ?? post.content} />
 
-            {/* Interaction bar */}
-            <div className="flex items-center gap-4 mt-6 pt-4 border-t border-cyber-border/50">
-              <span className="flex items-center gap-1 text-xs text-slate-500">
-                <MessageCircle size={14} />
+            <div className="mt-7 flex items-center gap-4 border-t border-border pt-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <MessageCircle size={16} />
                 {post.commentCount} comments
               </span>
-              <button className="flex items-center gap-1 text-xs text-slate-500 hover:text-neon-blue transition-colors">
-                <ExternalLink size={12} />
+              <button className="flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors hover:bg-accent hover:text-foreground">
+                <ExternalLink size={15} />
                 Share
               </button>
             </div>
@@ -284,7 +224,6 @@ export default async function PostDetailPage({
         </div>
       </article>
 
-      {/* ── Comments Section ── */}
       <CommentSection comments={comments} postId={id} />
     </div>
   )

@@ -1,21 +1,31 @@
-﻿"use client"
+"use client"
 
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useSession } from "next-auth/react"
-import { Search, Bell, Plus, Menu, Zap } from "lucide-react"
+import { Bell, LogIn, LogOut, Menu, Plus, Search, Settings, User, Zap } from "lucide-react"
+import { signIn, signOut, useSession } from "next-auth/react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { LoginButton } from "@/components/auth/LoginButton"
-import { UserMenu } from "@/components/auth/UserMenu"
+import { ThemeToggle } from "@/components/theme/ThemeToggle"
 import { mockNavLinks } from "@/data/mock-nav"
-import { Sidebar } from "./Sidebar"
-import type { Category, UserStats } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import type { Category, UserStats } from "@/lib/types"
+import { Sidebar } from "./Sidebar"
 
-interface NavbarProps { categories: Category[]; userStats: UserStats }
+interface NavbarProps {
+  categories: Category[]
+  userStats: UserStats
+}
 
 export function Navbar({ categories, userStats }: NavbarProps) {
   const pathname = usePathname()
@@ -23,66 +33,167 @@ export function Navbar({ categories, userStats }: NavbarProps) {
   const searchParams = useSearchParams()
   const { data: session, status } = useSession()
   const [searchQuery, setSearchQuery] = React.useState("")
-  const [searchFocused, setSearchFocused] = React.useState(false)
   const activeCategory = searchParams.get("category")
 
   return (
-    <header className="fixed top-0 z-50 w-full h-12 glass-strong border-b border-neon-blue/[0.08]">
-      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-neon-blue/30 to-transparent" />
-      <div className="absolute bottom-0 left-0 h-[1px] w-1/3 bg-gradient-to-r from-neon-blue/50 to-transparent animate-[shimmer-sweep_4s_infinite_linear]" />
-        <div className="relative flex items-center justify-between h-full px-3.5 lg:px-4 max-w-[1600px] mx-auto">
-        <div className="flex items-center gap-2">
+    <header className="fixed top-0 z-50 h-14 w-full border-b border-border bg-card/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-full max-w-[1600px] items-center justify-between gap-3 px-4">
+        <div className="flex min-w-0 items-center gap-3">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden text-slate-400 hover:text-neon-blue hover:bg-neon-blue/[0.06] active:scale-90 h-9 w-9 transition-all duration-200"><Menu size={18} /></Button>
+              <Button variant="ghost" size="icon" className="lg:hidden text-foreground hover:bg-accent">
+                <Menu size={20} />
+              </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[260px] p-0 bg-cyber-dark/95 border-r border-neon-blue/[0.06]">
-              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-              <Sidebar categories={categories} activeCategory={activeCategory} onCategoryChange={(id) => { if (activeCategory === id) router.push("/"); else router.push(`/?category=${id}`) }} className="h-full" />
+            <SheetContent side="left" className="w-[280px] border-r border-border bg-card p-0">
+              <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+              <Sidebar
+                categories={categories}
+                activeCategory={activeCategory}
+                onCategoryChange={(id) => {
+                  router.push(activeCategory === id ? "/" : `/?category=${id}`)
+                }}
+                className="h-full"
+              />
             </SheetContent>
           </Sheet>
-          <Link href="/" className="group flex items-center gap-2 shrink-0 ml-1">
-            <Zap size={20} className="text-neon-blue transition-all duration-300 group-hover:text-neon-blue-hot group-hover:drop-shadow-[0_0_10px_rgba(0,212,255,0.6)]" />
-            <span className="text-base font-display font-black tracking-[0.4em] neon-text-blue hidden sm:block uppercase glitch-text">NEXUS</span>
+
+          <Link href="/" className="flex shrink-0 items-center gap-2.5">
+            <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+              <Zap size={19} strokeWidth={2.4} />
+            </span>
+            <span className="hidden text-xl font-bold tracking-tight text-foreground sm:block">NEXUS</span>
           </Link>
-          <nav className="hidden lg:flex items-center gap-0.5 ml-6">
+
+          <nav className="ml-2 hidden items-center gap-1 lg:flex">
             {mockNavLinks.map((link) => {
               const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)
               return (
-                <Button key={link.href} variant="ghost" size="sm" asChild
-                  className={cn("relative h-8 px-3 text-slate-400 hover:text-neon-blue transition-all duration-200 hover:bg-neon-blue/[0.04] hover:skew-x-[-2deg] active:scale-95 active:skew-x-0", isActive && "text-neon-blue bg-neon-blue/[0.06] skew-x-[-2deg]")}>
-                  <Link href={link.href} className="flex items-center">
-                    <link.icon size={14} />
-                    <span className="ml-1.5 text-xs font-display font-semibold uppercase tracking-widest">{link.label}</span>
-                    {isActive && <span className="absolute bottom-0 left-0 w-full h-[2px] bg-neon-blue shadow-[0_0_10px_rgba(0,212,255,0.5)]" />}
+                <Button
+                  key={link.href}
+                  variant="ghost"
+                  size="sm"
+                  asChild
+                  className={cn(
+                    "h-9 rounded-xl px-3 text-muted-foreground hover:bg-accent hover:text-foreground",
+                    isActive && "bg-accent text-foreground",
+                  )}
+                >
+                  <Link href={link.href} className="flex items-center gap-2">
+                    <link.icon size={16} />
+                    <span className="text-sm font-medium">{link.label}</span>
                   </Link>
                 </Button>
               )
             })}
           </nav>
         </div>
-        <div className="flex-1 max-w-sm mx-3 relative">
-          <Search size={14} className={cn("absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-200", searchFocused ? "text-neon-blue" : "text-slate-400/60")} />
-          <Input type="search" placeholder="SCAN INTEL..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setSearchFocused(true)} onBlur={() => setSearchFocused(false)}
-            className={cn("w-full pl-9 pr-4 h-8 text-xs font-display uppercase tracking-widest clip-chamfer input-tech focus:input-tech-focus text-slate-200 placeholder:text-slate-400/50 transition-all duration-300", searchFocused && "glow-blue")} />
+
+        <div className="relative hidden flex-1 sm:block sm:max-w-md">
+          <Search
+            size={17}
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            type="search"
+            placeholder="Search discussions..."
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            className="h-10 rounded-xl border-border bg-background pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/45 focus:ring-primary/20"
+          />
         </div>
-        <div className="flex items-center gap-1.5">
-          <Button size="sm" asChild className="hidden sm:inline-flex h-8 px-4 clip-tag bg-neon-blue text-cyber-dark font-display font-bold uppercase tracking-widest text-[10px] hover:bg-neon-blue-hot hover:glow-blue-intense active:scale-95 active:skew-x-[-2deg] transition-all duration-200">
-            <Link href="/submit"><Plus size={14} strokeWidth={3} /><span className="ml-1">DEPLOY</span></Link>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            size="sm"
+            asChild
+            className="hidden h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90 sm:inline-flex"
+          >
+            <Link href="/submit">
+              <Plus size={16} strokeWidth={2.4} />
+              New Post
+            </Link>
           </Button>
-          <Button size="icon" asChild className="sm:hidden h-8 w-8 clip-tag bg-neon-blue text-cyber-dark hover:glow-blue active:scale-90 transition-all duration-200">
-            <Link href="/submit"><Plus size={16} strokeWidth={3} /></Link>
+          <Button
+            size="icon"
+            asChild
+            className="h-10 w-10 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 sm:hidden"
+          >
+            <Link href="/submit">
+              <Plus size={18} strokeWidth={2.4} />
+            </Link>
           </Button>
-          <Button variant="ghost" size="icon" className="relative h-8 w-8 text-slate-400 hover:text-neon-crimson hover:bg-neon-crimson/[0.06] active:scale-90 transition-all duration-200">
-            <Bell size={16} />
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-neon-crimson shadow-[0_0_6px_rgba(255,45,85,0.6)] animate-neon-pulse" />
+
+          <ThemeToggle />
+
+          <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground">
+            <Bell size={18} />
+            <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-primary" />
           </Button>
+
           {status === "loading" ? (
-            <div className="h-7 w-7 bg-cyber-surface animate-pulse ml-1 clip-diamond" />
+            <div className="h-9 w-9 animate-pulse rounded-full bg-muted" />
           ) : session?.user ? (
-            <UserMenu userStats={userStats} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-accent">
+                  <Avatar className="h-8 w-8 ring-2 ring-border">
+                    <AvatarImage src={userStats.avatarUrl} alt={userStats.summonerName} />
+                    <AvatarFallback className="bg-secondary text-sm font-semibold text-secondary-foreground">
+                      {userStats.summonerName.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="mt-2 w-56 rounded-2xl border-border bg-popover p-1.5 shadow-2xl">
+                <div className="flex items-center gap-3 px-2.5 py-2">
+                  <Avatar className="h-9 w-9 ring-1 ring-border">
+                    <AvatarImage src={userStats.avatarUrl} alt={userStats.summonerName} />
+                    <AvatarFallback className="bg-secondary text-sm font-semibold text-secondary-foreground">
+                      {userStats.summonerName.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-foreground">{userStats.summonerName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {userStats.rank}
+                      {userStats.lp ? ` · ${userStats.lp} LP` : ""}
+                    </p>
+                  </div>
+                </div>
+                <DropdownMenuSeparator className="my-1 bg-border" />
+                <DropdownMenuItem asChild className="rounded-xl text-muted-foreground focus:bg-accent focus:text-foreground">
+                  <Link href="/profile" className="flex items-center px-2.5 py-2 text-sm">
+                    <User size={16} className="mr-2 text-muted-foreground" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="rounded-xl text-muted-foreground focus:bg-accent focus:text-foreground">
+                  <Link href="/settings" className="flex items-center px-2.5 py-2 text-sm">
+                    <Settings size={16} className="mr-2 text-muted-foreground" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="my-1 bg-border" />
+                <DropdownMenuItem
+                  className="rounded-xl text-muted-foreground focus:bg-accent focus:text-foreground"
+                  onClick={() => signOut()}
+                >
+                  <LogOut size={16} className="mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <LoginButton />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => signIn()}
+              className="h-10 rounded-xl border-border bg-card px-3 text-sm font-semibold text-foreground hover:bg-accent"
+            >
+              <LogIn size={16} />
+              <span className="hidden sm:inline">Sign in</span>
+            </Button>
           )}
         </div>
       </div>

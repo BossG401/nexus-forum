@@ -1,33 +1,58 @@
-﻿import type { Post } from "@/lib/types"
-import { PostCard } from "./PostCard"
+import Link from "next/link"
+import { Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { mockCategories } from "@/data/mock-categories"
+import type { Post } from "@/lib/types"
+import { PostCard } from "./PostCard"
 
-interface FeedProps { posts: Post[]; activeCategory?: string }
+interface FeedProps {
+  posts: Post[]
+  activeCategory?: string
+}
 
 export function Feed({ posts, activeCategory }: FeedProps) {
-  const categoryLabel = activeCategory ? mockCategories.find((c) => c.id === activeCategory)?.name : null
+  const categoryLabel = activeCategory
+    ? mockCategories.find((category) => category.id === activeCategory)?.name
+    : null
+
   return (
     <section className="flex-1">
-      <div className="mb-4 animate-fade-in-up">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-1 h-8 bg-neon-blue shadow-[0_0_12px_rgba(0,212,255,0.4)]" />
-          <h1 className="text-2xl font-display font-black neon-text-blue tracking-[0.4em] uppercase">{categoryLabel ? `${categoryLabel.toUpperCase()}` : "DISPATCH"}</h1>
+      <div className="mb-6 flex flex-col gap-4 animate-fade-in-up sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            {categoryLabel ? categoryLabel.replace("#", "") : "All Discussions"}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {categoryLabel
+              ? `${posts.length} posts in this category`
+              : "Latest conversations from the community"}
+          </p>
         </div>
-        <p className="text-[10px] text-slate-400/60 font-mono uppercase tracking-widest ml-4 mt-1">
-          {categoryLabel ? `// ${posts.length} intel report${posts.length !== 1 ? "s" : ""} filtered` : "// latest tactical intel from the rift"}
-        </p>
-        <div className="mt-3 h-[1px] bg-gradient-to-r from-neon-blue/30 via-neon-blue/10 to-transparent w-40 ml-4" />
+        <Button
+          asChild
+          className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+        >
+          <Link href="/submit">
+            <Plus size={16} strokeWidth={2.4} />
+            New Post
+          </Link>
+        </Button>
       </div>
+
       {posts.length > 0 ? (
-        <div className="space-y-2 stagger-children">
+        <div className="space-y-3 stagger-children">
           {posts.map((post, index) => (
-            <div key={post.id} style={{ "--stagger": index } as React.CSSProperties}><PostCard post={post} /></div>
+            <div key={post.id} style={{ "--stagger": index } as React.CSSProperties}>
+              <PostCard post={post} />
+            </div>
           ))}
         </div>
       ) : (
-        <div className="glass-subtle clip-chamfer p-10 text-center animate-fade-in corner-marks">
-          <p className="text-slate-400/60 font-display font-black tracking-[0.5em] uppercase text-xs">// NO INTEL FOUND</p>
-          <p className="text-slate-500/50 text-[10px] mt-2 font-mono">No dispatches match this sector.</p>
+        <div className="rounded-2xl border border-border bg-card p-10 text-center animate-fade-in">
+          <p className="text-base font-semibold text-foreground">No posts found</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            No discussions match this category yet.
+          </p>
         </div>
       )}
     </section>

@@ -19,7 +19,7 @@ interface SettingsFormProps {
   ranks: string[]
 }
 
-const selectCls = "w-full input-tech focus:input-tech-focus clip-chamfer px-3.5 py-2.5 text-xs text-slate-200 font-mono uppercase tracking-wider appearance-none cursor-pointer bg-cyber-dark/80 transition-all duration-200"
+const selectCls = "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground appearance-none cursor-pointer outline-none transition-colors focus:border-primary/45 focus:ring-3 focus:ring-primary/15"
 
 export function SettingsForm({ defaultName, defaultServer, defaultRank, defaultImage, regions, ranks }: SettingsFormProps) {
   const router = useRouter()
@@ -27,7 +27,6 @@ export function SettingsForm({ defaultName, defaultServer, defaultRank, defaultI
   const [server, setServer] = useState(defaultServer)
   const [lolRank, setLolRank] = useState(defaultRank)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(defaultImage)
-  const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null)
@@ -35,139 +34,132 @@ export function SettingsForm({ defaultName, defaultServer, defaultRank, defaultI
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); if (!name.trim()) return; setSaving(true); setMsg(null)
-    try { const fd = new FormData(); fd.append("name", name); fd.append("server", server); fd.append("lolRank", lolRank); if (avatarUrl) fd.append("image", avatarUrl); await updateProfile(fd); setMsg({ type: "success", text: "Profile synced successfully." }); router.refresh() }
-    catch (err) { setMsg({ type: "error", text: err instanceof Error ? err.message : "Sync failed." }) } finally { setSaving(false) }
+    try { const fd = new FormData(); fd.append("name", name); fd.append("server", server); fd.append("lolRank", lolRank); if (avatarUrl) fd.append("image", avatarUrl); await updateProfile(fd); setMsg({ type: "success", text: "Profile saved successfully." }); router.refresh() }
+    catch (err) { setMsg({ type: "error", text: err instanceof Error ? err.message : "Save failed." }) } finally { setSaving(false) }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* ── Avatar Upload ── */}
       <div>
-        <label className="flex items-center gap-2 text-[9px] text-slate-400/70 font-display font-bold tracking-widest uppercase mb-3">
-          <Upload size={10} className="text-neon-gold/60" />AGENT AVATAR
+        <label className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <Upload size={14} className="text-muted-foreground" />Avatar
         </label>
         <div className="flex items-start gap-4">
           {/* Current / preview avatar */}
-          <Avatar className="h-16 w-16 ring-2 ring-neon-gold/30 shadow-[0_0_16px_rgba(212,168,67,0.15)] clip-chamfer shrink-0">
+          <Avatar className="h-16 w-16 shrink-0 ring-1 ring-border">
             <AvatarImage src={avatarUrl ?? undefined} alt={name} />
-            <AvatarFallback className="bg-cyber-surface text-neon-gold text-lg font-display font-black">
+            <AvatarFallback className="bg-secondary text-lg font-semibold text-secondary-foreground">
               {name ? name.slice(0, 2).toUpperCase() : "AG"}
             </AvatarFallback>
           </Avatar>
 
           {/* Upload dropzone (compact) */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             {avatarUrl && avatarUrl !== defaultImage ? (
               /* Preview mode — new image uploaded */
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-neon-green font-mono tracking-wider truncate flex-1">
-                  NEW AVATAR READY
+                <span className="flex-1 truncate text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                  New avatar ready
                 </span>
                 <button
                   type="button"
                   onClick={() => { setAvatarUrl(defaultImage); setDzKey(k => k + 1) }}
-                  className="flex items-center gap-1 px-2 py-1 text-[9px] text-neon-crimson/70 hover:text-neon-crimson font-mono tracking-wider border border-neon-crimson/20 hover:border-neon-crimson/40 transition-colors"
+                  className="flex items-center gap-1 rounded-lg border border-destructive/30 px-2 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
                 >
-                  <X size={10} />RESET
+                  <X size={12} />Reset
                 </button>
               </div>
             ) : (
               <UploadDropzone
                 key={dzKey}
                 endpoint="userAvatar"
-                className="ut-allowed-content:hidden [&_.ut-uploading-icon]:text-neon-gold [&_.ut-label]:text-neon-gold [&_.ut-label]:font-display [&_.ut-label]:tracking-widest"
                 appearance={{
                   container: cn(
-                    "flex items-center gap-2 py-2 px-3 border border-dashed border-cyber-border",
-                    "bg-cyber-dark/40 hover:border-neon-gold/40 hover:bg-cyber-surface/60",
-                    "transition-all duration-200 cursor-crosshair",
+                    "flex items-center gap-2 rounded-xl border border-dashed border-border px-3 py-2",
+                    "bg-background hover:border-primary/40 hover:bg-accent",
+                    "transition-colors cursor-pointer",
                   ),
-                  uploadIcon: "text-neon-gold/50",
-                  label: "text-[10px] font-display font-bold text-neon-gold tracking-widest uppercase",
+                  uploadIcon: "text-muted-foreground",
+                  label: "text-sm font-medium text-foreground",
                   allowedContent: "hidden",
                   button: cn(
-                    "bg-neon-gold/10 border border-neon-gold/30",
-                    "text-neon-gold font-display font-bold text-[9px] tracking-widest uppercase",
-                    "px-3 py-1 hover:bg-neon-gold/20",
-                    "transition-all duration-200",
+                    "rounded-lg bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground",
+                    "hover:bg-primary/90 transition-colors",
                   ),
                 }}
                 content={{
                   label: ({ ready, isUploading }) => {
-                    if (isUploading) return "UPLOADING..."
-                    if (!ready) return "INITIALIZING..."
-                    return "DROP OR CLICK"
+                    if (isUploading) return "Uploading…"
+                    if (!ready) return "Loading…"
+                    return "Drop or click to upload"
                   },
-                  button: "SELECT",
+                  button: "Select",
                   uploadIcon: ({ isUploading }) => {
-                    if (isUploading) return <Loader2 size={18} className="animate-spin text-neon-gold" />
+                    if (isUploading) return <Loader2 size={18} className="animate-spin text-primary" />
                     return <Upload size={18} />
                   },
                 }}
                 onBeforeUploadBegin={(files) => {
-                  setUploading(true)
                   setUploadError(null)
                   return files
                 }}
                 onClientUploadComplete={(res) => {
-                  setUploading(false)
                   const url = res?.[0]?.ufsUrl
                   if (url) setAvatarUrl(url)
                   else setUploadError("No URL returned")
                 }}
                 onUploadError={(err) => {
-                  setUploading(false)
                   setUploadError(err.message || "Upload failed")
                 }}
               />
             )}
             {uploadError && (
-              <p className="text-[9px] text-neon-crimson/70 font-mono mt-1">{uploadError}</p>
+              <p className="mt-1 text-xs text-destructive">{uploadError}</p>
             )}
-            <p className="text-[8px] text-slate-400/40 font-mono mt-1.5 tracking-wider">
-              PNG / JPG / WEBP — MAX 2 MB
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              PNG / JPG / WEBP — max 2 MB
             </p>
           </div>
         </div>
       </div>
 
       <div>
-        <label className="flex items-center gap-2 text-[9px] text-slate-400/70 font-display font-bold tracking-widest uppercase mb-2.5"><User size={10} className="text-neon-blue/60" />SUMMONER NAME</label>
+        <label className="mb-2.5 flex items-center gap-2 text-sm font-medium text-muted-foreground"><User size={14} className="text-muted-foreground" />Summoner name</label>
         <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Hide on bush" maxLength={50} required
-          className="input-tech focus:input-tech-focus text-slate-200 placeholder:text-slate-400/50 h-10 clip-chamfer text-xs font-display uppercase tracking-wider" />
+          className="h-10 rounded-xl border-border bg-background text-foreground placeholder:text-muted-foreground" />
       </div>
       <div>
-        <label className="flex items-center gap-2 text-[9px] text-slate-400/70 font-display font-bold tracking-widest uppercase mb-2.5"><Globe size={10} className="text-neon-gold/60" />REGION / SERVER</label>
+        <label className="mb-2.5 flex items-center gap-2 text-sm font-medium text-muted-foreground"><Globe size={14} className="text-muted-foreground" />Region / server</label>
         <div className="relative">
           <select value={server} onChange={(e) => setServer(e.target.value)} className={selectCls}>
-            <option value="" className="bg-cyber-dark text-slate-400">-- SELECT REGION --</option>
-            {regions.map((r) => <option key={r} value={r} className="bg-cyber-dark text-slate-200">{r}</option>)}
+            <option value="" className="bg-card text-muted-foreground">Select region</option>
+            {regions.map((r) => <option key={r} value={r} className="bg-card text-foreground">{r}</option>)}
           </select>
-          <Globe size={12} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400/50 pointer-events-none" />
+          <Globe size={14} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
         </div>
       </div>
       <div>
-        <label className="flex items-center gap-2 text-[9px] text-slate-400/70 font-display font-bold tracking-widest uppercase mb-2.5"><Trophy size={10} className="text-neon-purple/60" />RANK / TIER</label>
+        <label className="mb-2.5 flex items-center gap-2 text-sm font-medium text-muted-foreground"><Trophy size={14} className="text-muted-foreground" />Rank / tier</label>
         <div className="relative">
           <select value={lolRank} onChange={(e) => setLolRank(e.target.value)} className={selectCls}>
-            <option value="" className="bg-cyber-dark text-slate-400">-- SELECT RANK --</option>
-            {ranks.map((r) => <option key={r} value={r} className="bg-cyber-dark text-slate-200">{r}</option>)}
+            <option value="" className="bg-card text-muted-foreground">Select rank</option>
+            {ranks.map((r) => <option key={r} value={r} className="bg-card text-foreground">{r}</option>)}
           </select>
-          <Trophy size={12} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400/50 pointer-events-none" />
+          <Trophy size={14} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
         </div>
       </div>
       {msg && (
-        <div className={cn("flex items-center gap-2.5 px-4 py-3 clip-chamfer border text-xs font-display font-bold tracking-wider animate-fade-in",
-          msg.type === "success" ? "bg-neon-green/[0.05] border-neon-green/25 text-neon-green/85" : "bg-neon-crimson/[0.05] border-neon-crimson/25 text-neon-crimson/85")}>
-          {msg.type === "success" ? <CheckCircle size={13} /> : <AlertTriangle size={13} />}{msg.text}
+        <div className={cn("flex items-center gap-2.5 rounded-xl border px-4 py-3 text-sm font-medium animate-fade-in",
+          msg.type === "success" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "border-destructive/30 bg-destructive/10 text-destructive")}>
+          {msg.type === "success" ? <CheckCircle size={15} /> : <AlertTriangle size={15} />}{msg.text}
         </div>
       )}
-      <div className="flex items-center justify-between pt-4 border-t border-white/[0.04]">
-        <span className="text-[8px] text-slate-400/50 font-mono tracking-wider">CHANGES PROPAGATE IMMEDIATELY</span>
+      <div className="flex items-center justify-between border-t border-border pt-4">
+        <span className="text-xs text-muted-foreground">Changes apply immediately</span>
         <Button type="submit" disabled={saving || !name.trim()}
-          className={cn("flex items-center gap-2 h-9 px-5 clip-tag bg-neon-purple text-white font-display font-black uppercase tracking-widest text-[10px]",
-            "hover:bg-neon-purple-hot hover:glow-purple active:scale-95 active:skew-x-[-3deg] transition-all duration-200", "disabled:opacity-25 disabled:cursor-not-allowed")}>
-          {saving ? <><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/60 border-t-transparent" />SAVING...</> : <><Save size={13} strokeWidth={2.5} />SAVE</>}
+          className="flex h-9 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">
+          {saving ? <><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary-foreground/60 border-t-transparent" />Saving…</> : <><Save size={15} strokeWidth={2.4} />Save</>}
         </Button>
       </div>
     </form>

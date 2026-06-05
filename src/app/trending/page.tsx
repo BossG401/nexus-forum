@@ -33,10 +33,12 @@ export default async function TrendingPage() {
     <div className="max-w-3xl">
       <Feed posts={posts} />
       {posts.length === 0 && (
-        <div className="glass-subtle clip-chamfer p-8 text-center mt-3 animate-fade-in corner-marks">
-          <Flame size={24} className="text-neon-purple/50 mx-auto mb-2" />
-          <p className="text-slate-400/60 font-display font-black tracking-[0.5em] uppercase text-xs">TREND CALIBRATING</p>
-          <p className="text-slate-400/50 text-[10px] mt-2 font-mono">Real-time trend detection engine initializing...</p>
+        <div className="mt-3 rounded-2xl border border-border bg-card p-10 text-center animate-fade-in">
+          <Flame size={24} className="mx-auto mb-3 text-primary" />
+          <p className="text-base font-semibold text-foreground">Nothing trending yet</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Popular discussions will surface here as the community votes.
+          </p>
         </div>
       )}
     </div>

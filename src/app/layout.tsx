@@ -1,9 +1,9 @@
 ﻿import { Suspense } from "react"
 import type { Metadata } from "next"
-import { Orbitron, JetBrains_Mono } from "next/font/google"
 import { getServerSession } from "next-auth"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AuthProvider } from "@/components/auth/AuthProvider"
+import { ThemeProvider } from "@/components/theme/ThemeProvider"
 import { Navbar } from "@/components/layout/Navbar"
 import { SidebarClient } from "@/components/layout/SidebarClient"
 import { RightPanel } from "@/components/layout/RightPanel"
@@ -14,21 +14,9 @@ import { prisma } from "@/lib/prisma"
 import type { Category, UserStats } from "@/lib/types"
 import "./globals.css"
 
-const orbitron = Orbitron({
-  weight: ["400", "500", "600", "700", "800", "900"],
-  subsets: ["latin"],
-  variable: "--font-display",
-})
-
-const jetbrains = JetBrains_Mono({
-  weight: ["300", "400", "500", "600", "700"],
-  subsets: ["latin"],
-  variable: "--font-mono",
-})
-
 export const metadata: Metadata = {
-  title: "NEXUS // COMMAND CENTER",
-  description: "Hardcore League of Legends esports command center. Tactical intel, rank analysis, and combat dispatches.",
+  title: "NEXUS Forum",
+  description: "A modern community forum for League of Legends discussions, esports, patch notes, and player stories.",
 }
 
 function deriveUserStats(
@@ -76,33 +64,41 @@ export default async function RootLayout({
   const userStats = deriveUserStats(dbUser)
 
   return (
-    <html lang="en" className={`dark ${orbitron.variable} ${jetbrains.variable}`}>
-      <body className="bg-cyber-darker text-slate-200 antialiased min-h-screen font-mono scanline-overlay">
-        <AuthProvider>
-          <TooltipProvider>
-            <Navbar categories={categories} userStats={userStats} />
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Blocking script: reads localStorage and sets .dark / .light class
+            BEFORE React hydrates.  This must be inline in <head> — never inside
+            a React component (React 19 will warn and not execute it client-side). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme")||"dark";var d=document.documentElement;d.classList.add(t);d.style.colorScheme=t==="dark"?"dark":"light"}catch(e){}})()`,
+          }}
+        />
+      </head>
+      <body className="bg-background text-foreground antialiased min-h-screen font-sans">
+        <ThemeProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <Navbar categories={categories} userStats={userStats} />
 
-            {/* Command Center Grid — asymmetric 3-panel */}
-            <div className="relative z-10 pt-12 grid grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[240px_1fr_340px] min-h-screen">
-              {/* Left Sidebar */}
-              <div className="hidden lg:block sticky top-12 h-[calc(100vh-48px)] overflow-hidden">
-                <Suspense fallback={<div className="w-[240px] bg-cyber-dark" />}>
-                  <SidebarClient categories={categories} />
-                </Suspense>
+              <div className="relative z-10 pt-14 grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)_320px] min-h-screen">
+                <div className="hidden lg:block sticky top-14 h-[calc(100vh-56px)] overflow-hidden">
+                  <Suspense fallback={<div className="w-[280px] bg-card" />}>
+                    <SidebarClient categories={categories} />
+                  </Suspense>
+                </div>
+
+                <main className="min-h-[calc(100vh-56px)] py-8 px-4 lg:px-8 max-w-[1120px] w-full mx-auto">
+                  {children}
+                </main>
+
+                <div className="hidden xl:block sticky top-14 h-[calc(100vh-56px)] overflow-y-auto border-l border-border">
+                  <RightPanel userStats={userStats} className="h-full" />
+                </div>
               </div>
-
-              {/* Main Content */}
-              <main className="min-h-[calc(100vh-48px)] py-3 px-3 lg:px-4 max-w-[1000px] w-full mx-auto">
-                {children}
-              </main>
-
-              {/* Right Panel */}
-              <div className="hidden xl:block sticky top-12 h-[calc(100vh-48px)] overflow-y-auto">
-                <RightPanel userStats={userStats} className="h-full" />
-              </div>
-            </div>
-          </TooltipProvider>
-        </AuthProvider>
+            </TooltipProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

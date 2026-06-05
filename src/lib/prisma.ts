@@ -9,9 +9,27 @@ const connectionString = _raw.includes("?")
   : `${_raw}?sslmode=require`
 
 const prismaClientSingleton = () => {
-  const pool = new Pool({ connectionString })
+  const pool = new Pool({
+    connectionString,
+    // Vercel Postgres uses PgBouncer in transaction mode — a single
+    // connection avoids contention at the PgBouncer layer.
+    max: 1,
+    // Don't let the pool close connections on its own; PgBouncer
+    // manages the idle lifecycle.  Zero means "never idle out".
+    idleTimeoutMillis: 0,
+    // Don't wait forever for a connection that the server already closed.
+    connectionTimeoutMillis: 15_000,
+  })
+
+  // When PgBouncer or the server closes a connection, the pool may
+  // still hold a reference to it.  Log the event so it's visible in
+  // production, and let the pool re-create the connection on the next query.
+  pool.on("error", (err: Error) => {
+    console.warn("[prisma] pool error (connection may have been closed by server):", err.message)
+  })
+
   const adapter = new PrismaPg(pool)
-  return new PrismaClient({ adapter })
+  return new PrismaClient({ adapter, log: ["warn", "error"] })
 }
 
 declare global {

@@ -101,19 +101,29 @@ The home page (`/`) uses a hybrid server+client approach:
 
 ## Theme & Styling
 
-Tailwind v4 with custom design tokens defined in `src/app/globals.css` via `@theme` blocks:
+Tailwind v4 with a **semantic, two-mode token system** defined in `src/app/globals.css`. Light/dark switching is class-based via `next-themes` (toggles `.dark` on `<html>`).
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `--color-cyber-darker` | `#070A12` | Page background |
-| `--color-cyber-dark` | `#0B0F19` | Panel/card bg |
-| `--color-cyber-surface` | `#131A2B` | Elevated surfaces |
-| `--color-cyber-border` | `#1E2D45` | Borders, dividers |
-| `--color-neon-blue` | `#00D4FF` | Primary accent |
-| `--color-neon-purple` | `#A855F7` | Secondary accent |
-| `--color-neon-gold` | `#C8A951` | Rank badges |
+**How the theme machinery works:**
+- `@custom-variant dark (&:is(.dark *));` makes shadcn `dark:` utilities respond to the `.dark` class (NOT the OS `prefers-color-scheme`). This line is required — without it, `dark:` variants never fire under `next-themes`.
+- `:root { … }` holds the **light** token values; `.dark { … }` overrides them with the **dark** values.
+- `@theme inline { --color-*: var(--*) }` maps each CSS variable to a Tailwind color utility. The `inline` keyword makes utilities resolve `var()` at the use site, so a single `bg-card` switches color when `.dark` toggles.
 
-CSS utility classes: `.glass` (glassmorphism with backdrop-blur), `.glass-strong` (header variant), `.glow-blue` / `.glow-purple` (box-shadow glow), `.neon-text-blue` / `.neon-text-purple` (text glow). The `input-tech` and `input-tech-focus` classes style form inputs with the cyber aesthetic. Scrollbar styling uses webkit pseudo-elements for a dark minimal look.
+**Always style with semantic tokens, never hardcoded dark-only colors.** Use `bg-background` / `bg-card` / `bg-muted` / `bg-popover`, `text-foreground` / `text-muted-foreground` / `text-card-foreground`, `border-border`, `ring-border`, `bg-primary` / `text-primary-foreground`, `bg-destructive` / `text-destructive`. Do NOT reintroduce `bg-cyber-*`, `text-slate-*`, `text-white`, `bg-white/8`, `border-white/8`, `neon-*`, `clip-*`, `glass*`, `glow-*`, `input-tech`, or `font-display` — these were removed in the NEXUS clean redesign.
+
+| Token (light / dark) | Light | Dark | Usage |
+|---|---|---|---|
+| `--background` | `#f4f4f5` | `#0a0a0a` | Page background |
+| `--card` / `--popover` | `#ffffff` | `#161618` | Cards, panels, dropdowns |
+| `--foreground` / `--card-foreground` | `#18181b` | `#fafafa` | Primary text |
+| `--muted` / `--accent` / `--secondary` | `#f4f4f5` | `#27272a` | Inset fills, hover states |
+| `--muted-foreground` | `#71717a` | `#a1a1aa` | Secondary text |
+| `--border` / `--input` | `#e4e4e7` | `#26262a` | Borders, dividers |
+| `--primary` / `--ring` | `#ef5616` | `#ff5c1a` | Orange accent, focus ring |
+| `--destructive` | `#e5484d` | `#f0494e` | Errors, destructive actions |
+
+**Layout convention:** structural surfaces (Navbar `bg-card/80`, Sidebar `bg-card`, RightPanel section cards, PostCards) sit on the `bg-background` page; inputs use `bg-background` for an inset look against `bg-card` panels; hover/active fills use `bg-accent`. Status badges (rank/tag color maps in `PostCard.tsx`, `post/[id]/page.tsx`, `CommentCard.tsx`, `profile/page.tsx`) use dual-mode pairs like `text-amber-700 dark:text-amber-300` so they stay readable on white.
+
+Kept animations (clean, no skew/glitch): `.animate-fade-in`, `.animate-fade-in-up`, `.animate-slide-in-right`, and `.stagger-children` (per-item delay via `--stagger`). Scrollbar styling uses `var(--border)` / `var(--muted-foreground)`.
 
 ---
 
@@ -130,9 +140,12 @@ Session strategy is JWT. The `session` callback only copies `token.sub` → `ses
 ### Auth UI Components
 
 - `src/components/auth/AuthProvider.tsx` — wraps app in `SessionProvider` from `next-auth/react`
-- `src/components/auth/LoginButton.tsx` — cyberpunk login button, two variants: `"navbar"` (compact CONNECT) and `"hero"` (full SIGN IN WITH GITHUB). Calls `signIn("github")` on click
-- `src/components/auth/UserMenu.tsx` — dropdown menu for logged-in users (avatar, rank, LP, Profile/Settings links, SYSTEM LOGOUT). Receives `userStats: UserStats` prop (not session data)
-- `Navbar.tsx` renders `LoginButton` when logged out, `UserMenu` when logged in, a skeleton while loading
+- `Navbar.tsx` holds the auth UI inline: a skeleton while `status === "loading"`, a `DropdownMenu` (avatar → Profile/Settings/Sign out) when logged in, and an outline "Sign in" button (`signIn()`) when logged out. There are no separate `LoginButton`/`UserMenu` components.
+
+### Theme Components
+
+- `src/components/theme/ThemeProvider.tsx` — wraps the app (outside `AuthProvider` in `layout.tsx`) in `next-themes`' provider with `attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange`. `<html>` has `suppressHydrationWarning` so the server/client class mismatch on first paint is silenced.
+- `src/components/theme/ThemeToggle.tsx` — pill button (lucide `Sun`/`Moon` + "Light Mode"/"Dark Mode" label) rendered in the Navbar action group before the bell. Uses a `mounted` guard: renders a stable placeholder until mounted to avoid hydration mismatch and theme flash.
 
 ### Env Var Quoting: CRITICAL
 
