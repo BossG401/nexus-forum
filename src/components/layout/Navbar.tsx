@@ -3,13 +3,13 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useSession, signIn, signOut } from "next-auth/react"
-import { Search, Bell, Plus, Menu, Zap, LogIn, LogOut, User, Settings } from "lucide-react"
+import { useSession } from "next-auth/react"
+import { Search, Bell, Plus, Menu, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { LoginButton } from "@/components/auth/LoginButton"
+import { UserMenu } from "@/components/auth/UserMenu"
 import { mockNavLinks } from "@/data/mock-nav"
 import { Sidebar } from "./Sidebar"
 import type { Category, UserStats } from "@/lib/types"
@@ -77,45 +77,12 @@ export function Navbar({ categories, userStats }: NavbarProps) {
             <Bell size={16} />
             <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-neon-crimson shadow-[0_0_6px_rgba(255,45,85,0.6)] animate-neon-pulse" />
           </Button>
-          {status === "loading" ? <div className="h-7 w-7 bg-cyber-surface animate-pulse ml-1 clip-diamond" />
-          : session?.user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-none ml-1 h-8 w-8 hover:bg-transparent active:scale-90 transition-all duration-200">
-                  <Avatar className="h-7 w-7 ring-1 ring-neon-gold/40 transition-all duration-300 hover:ring-neon-gold/70 hover:glow-gold clip-diamond">
-                    <AvatarImage src={userStats.avatarUrl} alt={userStats.summonerName} />
-                    <AvatarFallback className="bg-neon-gold/10 text-neon-gold text-[10px] font-display font-bold">{userStats.summonerName.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52 mt-1 glass clip-chamfer animate-scale-in-brutal">
-                <div className="flex items-center gap-2.5 px-3 py-2.5">
-                  <Avatar className="h-8 w-8 ring-1 ring-neon-gold/25 clip-diamond">
-                    <AvatarImage src={userStats.avatarUrl} />
-                    <AvatarFallback className="bg-neon-gold/10 text-neon-gold text-[10px] font-display font-bold">{userStats.summonerName.slice(0, 2).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-xs font-display font-bold text-slate-200 uppercase tracking-wider">{userStats.summonerName}</p>
-                    <p className="text-[10px] text-neon-gold font-display font-semibold tracking-widest mt-0.5">{userStats.rank}{userStats.lp ? ` · ${userStats.lp} LP` : ""}</p>
-                  </div>
-                </div>
-                <DropdownMenuSeparator className="bg-neon-blue/[0.08]" />
-                <DropdownMenuItem asChild className="text-slate-300 hover:text-neon-blue focus:text-neon-blue cursor-pointer">
-                  <Link href="/profile" className="flex items-center px-3 py-2 text-xs font-display uppercase tracking-widest"><User size={13} className="mr-2 opacity-60" />Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="text-slate-300 hover:text-neon-blue focus:text-neon-blue cursor-pointer">
-                  <Link href="/settings" className="flex items-center px-3 py-2 text-xs font-display uppercase tracking-widest"><Settings size={13} className="mr-2 opacity-60" />Settings</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-neon-blue/[0.08]" />
-                <DropdownMenuItem className="text-slate-400 hover:text-neon-crimson focus:text-neon-crimson cursor-pointer" onClick={() => signOut()}>
-                  <LogOut size={13} className="mr-2 opacity-60" /><span className="text-xs font-display uppercase tracking-widest">Disconnect</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          {status === "loading" ? (
+            <div className="h-7 w-7 bg-cyber-surface animate-pulse ml-1 clip-diamond" />
+          ) : session?.user ? (
+            <UserMenu userStats={userStats} />
           ) : (
-            <Button size="sm" variant="outline" onClick={() => signIn()} className="ml-1 h-8 clip-tag border-neon-blue/25 text-neon-blue hover:bg-neon-blue/[0.08] hover:border-neon-blue/40 hover:glow-blue active:scale-95 transition-all duration-200 font-display font-bold uppercase tracking-widest text-[10px]">
-              <LogIn size={13} /><span className="ml-1.5">CONNECT</span>
-            </Button>
+            <LoginButton />
           )}
         </div>
       </div>

@@ -72,6 +72,21 @@ Client components that call Server Actions should `router.refresh()` after succe
 
 `src/lib/mappers.ts` provides `mapPrismaPost()` and `mapPrismaComment()` that convert Prisma query results (raw dates, nullable author fields) into UI-safe `Post` / `Comment` types (relative time strings, resolved defaults). Always use these instead of passing raw Prisma results to components.
 
+### Cursor-Based Infinite Scroll
+
+The home page (`/`) uses a hybrid server+client approach:
+
+1. `page.tsx` (server) fetches initial `PAGE_SIZE` posts, computes `nextCursor` + `hasMore`, passes as props
+2. `src/components/feed/InfiniteFeed.tsx` (client) manages posts array, cursor, loading/end/error states
+3. `src/actions/post.ts` exports `getMorePosts` server action for subsequent batches using Prisma `cursor: { id }` + `skip: 1`
+4. `react-intersection-observer`'s `useInView` with `rootMargin: "200px"` triggers pre-fetch
+5. `useRef<boolean>` guards against concurrent fetches (more reliable than `useState` in React 19)
+6. Key prop `key={categoryId ?? "all"}` on `InfiniteFeed` forces remount when category changes
+
+`PAGE_SIZE = 10` lives in `src/lib/constants.ts` — NOT in a `"use server"` file (Next.js requires ALL exports from `"use server"` files to be async functions; a constant export breaks module resolution).
+
+`Feed.tsx` is unchanged and still used by esports/patches/trending pages for non-paginated rendering.
+
 ---
 
 ## Database & Prisma
@@ -111,6 +126,34 @@ NextAuth v4 with two providers:
 Session strategy is JWT. The `session` callback only copies `token.sub` → `session.user.id`. The JWT does not carry name/image/rank — those must be fetched from the database on each request.
 
 `src/app/api/auth/[...nextauth]/route.ts` re-exports the handler from `src/lib/auth.ts`.
+
+### Auth UI Components
+
+- `src/components/auth/AuthProvider.tsx` — wraps app in `SessionProvider` from `next-auth/react`
+- `src/components/auth/LoginButton.tsx` — cyberpunk login button, two variants: `"navbar"` (compact CONNECT) and `"hero"` (full SIGN IN WITH GITHUB). Calls `signIn("github")` on click
+- `src/components/auth/UserMenu.tsx` — dropdown menu for logged-in users (avatar, rank, LP, Profile/Settings links, SYSTEM LOGOUT). Receives `userStats: UserStats` prop (not session data)
+- `Navbar.tsx` renders `LoginButton` when logged out, `UserMenu` when logged in, a skeleton while loading
+
+### Env Var Quoting: CRITICAL
+
+**Next.js `.env` files do NOT strip double quotes.** `KEY="value"` loads as `"value"` (literal quotes included). This silently breaks OAuth credentials:
+
+```
+# WRONG — process.env.GITHUB_CLIENT_ID === '"abc123"' (with quotes)
+GITHUB_CLIENT_ID="abc123"
+
+# RIGHT — process.env.GITHUB_CLIENT_ID === 'abc123' (no quotes)
+GITHUB_CLIENT_ID=abc123
+```
+
+If `GITHUB_CLIENT_ID` or `GITHUB_CLIENT_SECRET` contain quotes, GitHub responds with `error=OAuthCallback`. The same applies to `NEXTAUTH_URL` and `NEXTAUTH_SECRET` — quoted values break callback URL construction and token signing.
+
+### GitHub OAuth Setup Checklist
+
+1. `.env.local` (overrides `.env`) must have `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` without quotes
+2. `NEXTAUTH_URL=http://localhost:3000` (no quotes, no trailing slash)
+3. GitHub OAuth App → Settings → Authorization callback URL must be exactly `http://localhost:3000/api/auth/callback/github`
+4. GitHub OAuth App must have the correct Client ID and Client Secret
 
 ---
 
