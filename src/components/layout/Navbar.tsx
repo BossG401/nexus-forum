@@ -188,7 +188,7 @@ export function Navbar({ categories, userStats }: NavbarProps) {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => signIn()}
+              onClick={() => signIn("github")}
               className="h-10 rounded-xl border-border bg-card px-3 text-sm font-semibold text-foreground hover:bg-accent"
             >
               <LogIn size={16} />

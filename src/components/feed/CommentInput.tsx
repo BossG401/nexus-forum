@@ -69,7 +69,7 @@ export function CommentInput({ postId }: CommentInputProps) {
           </div>
           <div className="mt-3 flex justify-end">
             <button
-              onClick={() => signIn()}
+              onClick={() => signIn("github")}
               className="inline-flex h-9 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
               <LogIn size={15} />

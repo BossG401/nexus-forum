@@ -70,7 +70,7 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
               Connect your account to see rank, performance, and champion history.
             </p>
             <button
-              onClick={() => signIn()}
+              onClick={() => signIn("github")}
               className="mt-5 h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Sign in

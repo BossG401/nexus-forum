@@ -11,19 +11,17 @@ const connectionString = _raw.includes("?")
 const prismaClientSingleton = () => {
   const pool = new Pool({
     connectionString,
-    // Vercel Postgres uses PgBouncer in transaction mode — a single
-    // connection avoids contention at the PgBouncer layer.
-    max: 1,
-    // Don't let the pool close connections on its own; PgBouncer
-    // manages the idle lifecycle.  Zero means "never idle out".
-    idleTimeoutMillis: 0,
-    // Don't wait forever for a connection that the server already closed.
+    // Keep a small pool: enough for concurrent OAuth callbacks,
+    // but not so many that local dev drains Vercel Postgres limits.
+    max: 3,
+    // Let the pool close idle connections after 30 s inactivity so
+    // Vercel Postgres (PgBouncer) doesn't kill them first.
+    idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 15_000,
   })
 
-  // When PgBouncer or the server closes a connection, the pool may
-  // still hold a reference to it.  Log the event so it's visible in
-  // production, and let the pool re-create the connection on the next query.
+  // Remove dead connections early: if the server closes one,
+  // the pool logs and discards it, then creates a replacement.
   pool.on("error", (err: Error) => {
     console.warn("[prisma] pool error (connection may have been closed by server):", err.message)
   })
