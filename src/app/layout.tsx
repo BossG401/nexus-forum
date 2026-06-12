@@ -1,6 +1,5 @@
 ﻿import { Suspense } from "react"
 import type { Metadata } from "next"
-import Script from "next/script"
 import { getServerSession } from "next-auth"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AuthProvider } from "@/components/auth/AuthProvider"
@@ -67,12 +66,17 @@ export default async function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
-        {/* Blocking script: reads localStorage and sets .dark / .light class
-            BEFORE React hydrates.  Must be in <head> — React 19 warns about
-            sync/defer scripts outside the main document. */}
-        <Script id="theme-switch" strategy="beforeInteractive">
-          {`(function(){try{var t=localStorage.getItem("theme")||"dark";var d=document.documentElement;d.classList.add(t);d.style.colorScheme=t==="dark"?"dark":"light"}catch(e){}})()`}
-        </Script>
+        {/* Blocking theme script: must run BEFORE first paint to prevent flash.
+            Uses raw <script> (not next/script) because this is a Server Component —
+            the browser executes server-rendered <script> tags during HTML parsing,
+            before React hydration. React 19's "scripts are never executed" warning
+            only applies to client-rendered components, not SSR output.
+            suppressHydrationWarning on <html> covers the hydration mismatch. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme")||"dark";var d=document.documentElement;d.classList.add(t);d.style.colorScheme=t==="dark"?"dark":"light"}catch(e){}})()`,
+          }}
+        />
       </head>
       <body className="bg-background text-foreground antialiased min-h-screen font-sans">
         <ThemeProvider>
