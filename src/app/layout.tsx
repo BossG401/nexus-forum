@@ -66,15 +66,14 @@ export default async function RootLayout({
 
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      {/* Blocking script: reads localStorage and sets .dark / .light class
-          BEFORE React hydrates.  Uses next/script (NOT a raw <script> tag)
-          to avoid React 19's "Scripts inside React components are never
-          executed when rendering on the client" warning.
-          Uses children (inline string) instead of dangerouslySetInnerHTML —
-          the recommended pattern for inline scripts with next/script. */}
-      <Script id="theme-switch" strategy="beforeInteractive">
-        {`(function(){try{var t=localStorage.getItem("theme")||"dark";var d=document.documentElement;d.classList.add(t);d.style.colorScheme=t==="dark"?"dark":"light"}catch(e){}})()`}
-      </Script>
+      <head>
+        {/* Blocking script: reads localStorage and sets .dark / .light class
+            BEFORE React hydrates.  Must be in <head> — React 19 warns about
+            sync/defer scripts outside the main document. */}
+        <Script id="theme-switch" strategy="beforeInteractive">
+          {`(function(){try{var t=localStorage.getItem("theme")||"dark";var d=document.documentElement;d.classList.add(t);d.style.colorScheme=t==="dark"?"dark":"light"}catch(e){}})()`}
+        </Script>
+      </head>
       <body className="bg-background text-foreground antialiased min-h-screen font-sans">
         <ThemeProvider>
           <AuthProvider>
