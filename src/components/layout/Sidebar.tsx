@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { Category } from "@/lib/types"
+import { tagLabel } from "@/lib/labels"
 import { cn } from "@/lib/utils"
 
 const iconMap: Record<string, LucideIcon> = {
@@ -38,9 +39,9 @@ export function Sidebar({ categories, activeCategory, onCategoryChange, classNam
     <aside className={cn("flex w-[280px] flex-col bg-card", className)}>
       <div className="border-b border-border px-5 py-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-          Communities
+          社区
         </p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground">Browse</h2>
+        <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground">浏览</h2>
       </div>
 
       <div className="border-b border-border px-5 py-4">
@@ -51,7 +52,7 @@ export function Sidebar({ categories, activeCategory, onCategoryChange, classNam
           />
           <input
             type="search"
-            placeholder="Search..."
+            placeholder="搜索…"
             className="h-11 w-full rounded-xl border border-border bg-background px-3 pl-10 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/45 focus:ring-3 focus:ring-primary/15"
           />
         </div>
@@ -80,7 +81,7 @@ export function Sidebar({ categories, activeCategory, onCategoryChange, classNam
                 />
               ) : null}
               <span className="min-w-0 flex-1 truncate text-sm font-medium">
-                {category.name.replace("#", "")}
+                {tagLabel(category.name)}
               </span>
               <Badge
                 variant="outline"
@@ -101,7 +102,7 @@ export function Sidebar({ categories, activeCategory, onCategoryChange, classNam
       </nav>
 
       <div className="border-t border-border px-5 py-4">
-        <p className="text-xs text-muted-foreground">NEXUS community forum</p>
+        <p className="text-xs text-muted-foreground">NEXUS 社区论坛</p>
       </div>
     </aside>
   )

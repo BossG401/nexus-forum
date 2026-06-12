@@ -13,7 +13,7 @@ export const ourFileRouter = {
     .middleware(async () => {
       const session = await getServerSession(authOptions)
       if (!session?.user?.id) {
-        throw new Error("UNAUTHORIZED: Sign in to upload images.")
+        throw new Error("请先登录后再上传图片。")
       }
       return { userId: session.user.id }
     })
@@ -30,7 +30,7 @@ export const ourFileRouter = {
     .middleware(async () => {
       const session = await getServerSession(authOptions)
       if (!session?.user?.id) {
-        throw new Error("UNAUTHORIZED: Sign in to update your avatar.")
+        throw new Error("请先登录后再更新头像。")
       }
       return { userId: session.user.id }
     })

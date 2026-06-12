@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { X, Upload, AlertCircle, ChevronDown, Send, Loader2 } from "lucide-react"
 import { UploadDropzone } from "@/lib/uploadthing"
 import { createPost } from "@/actions/post"
+import { tagLabel } from "@/lib/labels"
 import { cn } from "@/lib/utils"
 
 // ── Tag options (match mockCategories) ──
@@ -50,7 +51,7 @@ export function CreatePostForm() {
       await createPost(formData)
       // createPost redirects to / on success — no further action needed
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to create post")
+      setError(e instanceof Error ? e.message : "发帖失败")
       setSubmitting(false)
     }
   }
@@ -69,9 +70,9 @@ export function CreatePostForm() {
     >
       {/* ── Header ── */}
       <div>
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">Create a post</h2>
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">发布帖子</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Share something with the community.
+          和社区分享点什么吧。
         </p>
       </div>
 
@@ -85,7 +86,7 @@ export function CreatePostForm() {
 
       {/* ── Tag selector ── */}
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-muted-foreground">Category</label>
+        <label className="text-sm font-medium text-muted-foreground">分类</label>
         <div className="relative">
           <select
             value={tag}
@@ -98,7 +99,7 @@ export function CreatePostForm() {
           >
             {TAGS.map((t) => (
               <option key={t.name} value={t.name} className="bg-card text-foreground">
-                {t.name}
+                {tagLabel(t.name)}
               </option>
             ))}
           </select>
@@ -111,12 +112,12 @@ export function CreatePostForm() {
 
       {/* ── Title ── */}
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-muted-foreground">Title</label>
+        <label className="text-sm font-medium text-muted-foreground">标题</label>
         <input
           name="title"
           type="text"
           required
-          placeholder="e.g. T1 just pulled off the greatest baron steal in LCK history"
+          placeholder="例如：T1 刚刚完成了 LCK 历史上最精彩的偷男爵"
           maxLength={200}
           className={fieldCls}
         />
@@ -124,29 +125,29 @@ export function CreatePostForm() {
 
       {/* ── Content ── */}
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-muted-foreground">Summary</label>
+        <label className="text-sm font-medium text-muted-foreground">摘要</label>
         <textarea
           name="content"
           required
           rows={6}
-          placeholder="Write a short summary. Plain text, no markdown."
+          placeholder="写一段简短摘要。纯文本，不支持 Markdown。"
           maxLength={5000}
           className={cn(fieldCls, "resize-none")}
         />
         <p className="text-right text-xs text-muted-foreground">
-          Plain text only — 5,000 characters max
+          仅限纯文本 — 最多 5,000 字
         </p>
       </div>
 
       {/* ── Full content (optional, for detail page) ── */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-muted-foreground">
-          Full content <span className="text-muted-foreground/70">(optional)</span>
+          正文 <span className="text-muted-foreground/70">（可选）</span>
         </label>
         <textarea
           name="fullContent"
           rows={4}
-          placeholder="Longer content for the post detail page…"
+          placeholder="用于帖子详情页的完整正文…"
           maxLength={20000}
           className={cn(fieldCls, "resize-none")}
         />
@@ -157,7 +158,7 @@ export function CreatePostForm() {
           ════════════════════════════════════════════ */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-muted-foreground">
-          Image <span className="text-muted-foreground/70">(optional)</span>
+          配图 <span className="text-muted-foreground/70">（可选）</span>
         </label>
 
         {imageUrl ? (
@@ -166,7 +167,7 @@ export function CreatePostForm() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageUrl}
-              alt="Post screenshot preview"
+              alt="帖子配图预览"
               className="max-h-64 w-full object-cover"
             />
             {/* Overlay with remove button */}
@@ -177,7 +178,7 @@ export function CreatePostForm() {
                 className="flex items-center gap-1.5 rounded-lg bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground transition-colors hover:bg-destructive/90"
               >
                 <X size={14} />
-                Remove
+                移除
               </button>
             </div>
           </div>
@@ -204,12 +205,12 @@ export function CreatePostForm() {
               }}
               content={{
                 label: ({ ready, isUploading }) => {
-                  if (isUploading) return "Uploading…"
-                  if (!ready) return "Loading…"
-                  return "Drop an image here"
+                  if (isUploading) return "上传中…"
+                  if (!ready) return "加载中…"
+                  return "拖拽图片到此处"
                 },
-                allowedContent: "PNG, JPG, WEBP — max 4 MB",
-                button: "Select file",
+                allowedContent: "PNG、JPG、WEBP — 最大 4 MB",
+                button: "选择文件",
                 uploadIcon: ({ ready, isUploading }) => {
                   if (isUploading) return <Loader2 size={40} className="animate-spin text-primary" />
                   if (!ready) return <Loader2 size={40} className="animate-spin text-muted-foreground" />
@@ -230,13 +231,13 @@ export function CreatePostForm() {
                   setImageUrl(url)
                 } else {
                   console.warn("[UploadThing] No ufsUrl in response:", JSON.stringify(res))
-                  setError("Upload succeeded but no URL returned. Check console.")
+                  setError("上传成功但未返回 URL，请检查控制台。")
                 }
               }}
               onUploadError={(err) => {
                 setUploading(false)
                 console.error("[UploadThing] Upload error:", err)
-                setError(err.message || "Upload failed — check file type and size")
+                setError(err.message || "上传失败 — 请检查文件类型和大小")
               }}
             />
             {/* Uploading overlay spinner */}
@@ -244,7 +245,7 @@ export function CreatePostForm() {
               <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/70">
                 <div className="flex flex-col items-center gap-2">
                   <Loader2 size={28} className="animate-spin text-primary" />
-                  <span className="text-xs text-primary">Uploading…</span>
+                  <span className="text-xs text-primary">上传中…</span>
                 </div>
               </div>
             )}
@@ -262,12 +263,12 @@ export function CreatePostForm() {
           {submitting ? (
             <>
               <Loader2 size={15} className="animate-spin" />
-              Posting…
+              发布中…
             </>
           ) : (
             <>
               <Send size={15} />
-              Post
+              发布
             </>
           )}
         </button>
@@ -276,7 +277,7 @@ export function CreatePostForm() {
           onClick={() => router.back()}
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
-          Cancel
+          取消
         </button>
       </div>
     </form>

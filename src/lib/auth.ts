@@ -13,9 +13,9 @@ export const authOptions: NextAuthOptions = {
     }),
     // Dummy credentials provider for testing without OAuth
     CredentialsProvider({
-      name: "Demo Login",
+      name: "体验登录",
       credentials: {
-        username: { label: "Summoner Name", type: "text", placeholder: "Hide on bush" },
+        username: { label: "召唤师名称", type: "text", placeholder: "Hide on bush" },
       },
       async authorize(credentials) {
         if (!credentials?.username) return null

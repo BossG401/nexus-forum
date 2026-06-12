@@ -5,6 +5,7 @@ import { Activity, CheckCircle, Loader2, ShieldAlert, TrendingUp } from "lucide-
 import { signIn, useSession } from "next-auth/react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
+import { rankLabel } from "@/lib/labels"
 import type { UserStats } from "@/lib/types"
 
 interface RightPanelProps {
@@ -65,15 +66,15 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
         <div className="p-4">
           <div className="rounded-2xl border border-border bg-card p-5 text-center">
             <ShieldAlert size={24} className="mx-auto text-primary" />
-            <h3 className="mt-3 text-lg font-semibold text-foreground">Sign in for stats</h3>
+            <h3 className="mt-3 text-lg font-semibold text-foreground">登录查看战绩</h3>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              Connect your account to see rank, performance, and champion history.
+              关联账号即可查看段位、战绩与英雄历史。
             </p>
             <button
               onClick={() => signIn("github")}
               className="mt-5 h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
-              Sign in
+              登录
             </button>
           </div>
         </div>
@@ -95,7 +96,7 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
             <div className="min-w-0">
               <h3 className="truncate text-base font-semibold text-foreground">{liveStats.summonerName}</h3>
               <p className="mt-0.5 text-sm text-primary">
-                {liveStats.rank}
+                {rankLabel(liveStats.rank)}
                 {liveStats.rankTier ? ` ${liveStats.rankTier}` : ""}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -121,16 +122,16 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
         <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
             <TrendingUp size={17} className="text-primary" />
-            <h4 className="text-sm font-semibold text-foreground">Performance</h4>
+            <h4 className="text-sm font-semibold text-foreground">表现</h4>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-xl bg-muted px-3 py-3">
               <p className="text-xl font-semibold text-foreground">{totalGames}</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Games</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">对局</p>
             </div>
             <div className="rounded-xl bg-muted px-3 py-3">
               <p className="text-xl font-semibold text-foreground">{liveStats.playtimeHours}h</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Playtime</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">时长</p>
             </div>
           </div>
           <div className="mt-4">
@@ -148,7 +149,7 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
         <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
             <Activity size={17} className="text-primary" />
-            <h4 className="text-sm font-semibold text-foreground">Top Champions</h4>
+            <h4 className="text-sm font-semibold text-foreground">常用英雄</h4>
           </div>
           <div className="space-y-3">
             {liveStats.mainChampions.map((champion) => (
@@ -196,9 +197,9 @@ export function RightPanel({ userStats, className }: RightPanelProps) {
         >
           <span>
             <span className="block text-sm font-semibold">
-              {syncPhase === "syncing" ? "Syncing..." : syncPhase === "success" ? "Synced" : "Sync stats"}
+              {syncPhase === "syncing" ? "同步中…" : syncPhase === "success" ? "已同步" : "同步战绩"}
             </span>
-            <span className="mt-0.5 block text-xs text-muted-foreground">Connect Riot / QQ account</span>
+            <span className="mt-0.5 block text-xs text-muted-foreground">关联 Riot / QQ 账号</span>
           </span>
           {syncPhase === "syncing" ? (
             <Loader2 size={17} className="animate-spin" />

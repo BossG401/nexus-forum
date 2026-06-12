@@ -19,6 +19,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { ThemeToggle } from "@/components/theme/ThemeToggle"
 import { mockNavLinks } from "@/data/mock-nav"
 import { cn } from "@/lib/utils"
+import { rankLabel } from "@/lib/labels"
 import type { Category, UserStats } from "@/lib/types"
 import { Sidebar } from "./Sidebar"
 
@@ -46,7 +47,7 @@ export function Navbar({ categories, userStats }: NavbarProps) {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[280px] border-r border-border bg-card p-0">
-              <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+              <SheetTitle className="sr-only">导航菜单</SheetTitle>
               <Sidebar
                 categories={categories}
                 activeCategory={activeCategory}
@@ -96,7 +97,7 @@ export function Navbar({ categories, userStats }: NavbarProps) {
           />
           <Input
             type="search"
-            placeholder="Search discussions..."
+            placeholder="搜索讨论…"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             className="h-10 rounded-xl border-border bg-background pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/45 focus:ring-primary/20"
@@ -111,7 +112,7 @@ export function Navbar({ categories, userStats }: NavbarProps) {
           >
             <Link href="/submit">
               <Plus size={16} strokeWidth={2.4} />
-              New Post
+              发帖
             </Link>
           </Button>
           <Button
@@ -156,7 +157,7 @@ export function Navbar({ categories, userStats }: NavbarProps) {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-foreground">{userStats.summonerName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {userStats.rank}
+                      {rankLabel(userStats.rank)}
                       {userStats.lp ? ` · ${userStats.lp} LP` : ""}
                     </p>
                   </div>
@@ -165,13 +166,13 @@ export function Navbar({ categories, userStats }: NavbarProps) {
                 <DropdownMenuItem asChild className="rounded-xl text-muted-foreground focus:bg-accent focus:text-foreground">
                   <Link href="/profile" className="flex items-center px-2.5 py-2 text-sm">
                     <User size={16} className="mr-2 text-muted-foreground" />
-                    Profile
+                    个人主页
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="rounded-xl text-muted-foreground focus:bg-accent focus:text-foreground">
                   <Link href="/settings" className="flex items-center px-2.5 py-2 text-sm">
                     <Settings size={16} className="mr-2 text-muted-foreground" />
-                    Settings
+                    设置
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="my-1 bg-border" />
@@ -180,7 +181,7 @@ export function Navbar({ categories, userStats }: NavbarProps) {
                   onClick={() => signOut()}
                 >
                   <LogOut size={16} className="mr-2" />
-                  Sign out
+                  退出登录
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -192,7 +193,7 @@ export function Navbar({ categories, userStats }: NavbarProps) {
               className="h-10 rounded-xl border-border bg-card px-3 text-sm font-semibold text-foreground hover:bg-accent"
             >
               <LogIn size={16} />
-              <span className="hidden sm:inline">Sign in</span>
+              <span className="hidden sm:inline">登录</span>
             </Button>
           )}
         </div>

@@ -31,13 +31,13 @@ export default async function PatchesPage() {
 
   return (
     <div className="max-w-3xl">
-      <Feed posts={posts} />
+      <Feed posts={posts} activeCategory="patch-notes" />
       {posts.length === 0 && (
         <div className="mt-3 rounded-2xl border border-border bg-card p-10 text-center animate-fade-in">
           <ScrollText size={24} className="mx-auto mb-3 text-primary" />
-          <p className="text-base font-semibold text-foreground">No patch notes yet</p>
+          <p className="text-base font-semibold text-foreground">暂无版本公告</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Detailed patch breakdowns and meta analysis will appear here.
+            详细的版本解读和版本环境分析将显示在这里。
           </p>
         </div>
       )}

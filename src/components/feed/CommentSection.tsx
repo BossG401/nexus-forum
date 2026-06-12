@@ -13,7 +13,7 @@ export function CommentSection({ comments, postId }: CommentSectionProps) {
     <section className="mt-8">
       <div className="mb-4 flex items-center gap-2">
         <MessageSquare size={20} className="text-primary" />
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">Comments</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">评论</h2>
         <span className="text-sm text-muted-foreground">({comments.length})</span>
       </div>
 
@@ -26,7 +26,7 @@ export function CommentSection({ comments, postId }: CommentSectionProps) {
           </div>
         ) : (
           <p className="py-10 text-center text-sm text-muted-foreground">
-            No comments yet. Start the conversation.
+            还没有评论，来抢沙发吧。
           </p>
         )}
       </div>

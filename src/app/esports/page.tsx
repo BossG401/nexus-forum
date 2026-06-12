@@ -31,13 +31,13 @@ export default async function EsportsPage() {
 
   return (
     <div className="max-w-3xl">
-      <Feed posts={posts} />
+      <Feed posts={posts} activeCategory="esports" />
       {posts.length === 0 && (
         <div className="mt-3 rounded-2xl border border-border bg-card p-10 text-center animate-fade-in">
           <Trophy size={24} className="mx-auto mb-3 text-primary" />
-          <p className="text-base font-semibold text-foreground">No esports threads yet</p>
+          <p className="text-base font-semibold text-foreground">暂无电竞帖子</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Live tournament threads and match analysis will appear here.
+            实时赛事讨论和比赛分析将显示在这里。
           </p>
         </div>
       )}

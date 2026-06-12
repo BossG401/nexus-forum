@@ -1,6 +1,7 @@
 import { ArrowBigUp, Clock } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { Comment } from "@/lib/types"
+import { rankLabel } from "@/lib/labels"
 import { cn } from "@/lib/utils"
 
 const rankStyles: Record<string, string> = {
@@ -30,7 +31,7 @@ export function CommentCard({ comment }: CommentCardProps) {
         <div className="mb-1 flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold text-foreground">{comment.author.name}</span>
           <span className={cn("text-xs font-medium", rankStyles[comment.author.rank])}>
-            {comment.author.rank}
+            {rankLabel(comment.author.rank)}
           </span>
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
             <Clock size={12} />

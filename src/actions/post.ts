@@ -13,7 +13,7 @@ export async function createPost(formData: FormData) {
   const session = await getServerSession(authOptions)
 
   if (!session?.user?.id) {
-    throw new Error("Authentication required to create a post")
+    throw new Error("请先登录后再发帖")
   }
 
   const title = formData.get("title") as string
@@ -24,7 +24,7 @@ export async function createPost(formData: FormData) {
   const imageUrl = (formData.get("imageUrl") as string) || null
 
   if (!title?.trim() || !content?.trim() || !tag?.trim()) {
-    throw new Error("Title, content, and tag are required")
+    throw new Error("标题、内容和分类不能为空")
   }
 
   await prisma.post.create({

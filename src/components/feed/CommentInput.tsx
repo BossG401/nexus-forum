@@ -65,7 +65,7 @@ export function CommentInput({ postId }: CommentInputProps) {
         <div className="flex-1">
           <div className="rounded-xl border border-border bg-muted px-4 py-5 text-center text-sm text-muted-foreground">
             <LogIn size={16} className="mr-1.5 inline-block" />
-            Sign in to comment.
+            登录后即可评论。
           </div>
           <div className="mt-3 flex justify-end">
             <button
@@ -73,7 +73,7 @@ export function CommentInput({ postId }: CommentInputProps) {
               className="inline-flex h-9 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
               <LogIn size={15} />
-              Sign in
+              登录
             </button>
           </div>
         </div>
@@ -98,7 +98,7 @@ export function CommentInput({ postId }: CommentInputProps) {
           onKeyDown={handleKeyDown}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder="Write a comment..."
+          placeholder="写下你的评论…"
           rows={4}
           disabled={submitting}
           className={cn(
@@ -108,7 +108,7 @@ export function CommentInput({ postId }: CommentInputProps) {
         />
 
         <div className="mt-3 flex items-center justify-between gap-3">
-          <span className="text-xs text-muted-foreground">Ctrl + Enter to post</span>
+          <span className="text-xs text-muted-foreground">Ctrl + Enter 发送</span>
           <button
             onClick={handleSubmit}
             disabled={!value.trim() || submitting}
@@ -119,7 +119,7 @@ export function CommentInput({ postId }: CommentInputProps) {
             ) : (
               <SendHorizontal size={15} />
             )}
-            Post
+            发布
           </button>
         </div>
       </div>

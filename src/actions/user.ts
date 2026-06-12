@@ -9,7 +9,7 @@ export async function updateProfile(formData: FormData) {
   const session = await getServerSession(authOptions)
 
   if (!session?.user?.id) {
-    throw new Error("Authentication required")
+    throw new Error("请先登录")
   }
 
   const name = (formData.get("name") as string)?.trim()
@@ -18,7 +18,7 @@ export async function updateProfile(formData: FormData) {
   const image = (formData.get("image") as string)?.trim() || null
 
   if (!name) {
-    throw new Error("Summoner Name is required")
+    throw new Error("召唤师名称不能为空")
   }
 
   await prisma.user.update({

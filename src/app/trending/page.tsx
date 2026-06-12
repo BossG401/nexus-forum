@@ -35,9 +35,9 @@ export default async function TrendingPage() {
       {posts.length === 0 && (
         <div className="mt-3 rounded-2xl border border-border bg-card p-10 text-center animate-fade-in">
           <Flame size={24} className="mx-auto mb-3 text-primary" />
-          <p className="text-base font-semibold text-foreground">Nothing trending yet</p>
+          <p className="text-base font-semibold text-foreground">暂无热门内容</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Popular discussions will surface here as the community votes.
+            随着社区投票，热门讨论将在这里浮现。
           </p>
         </div>
       )}

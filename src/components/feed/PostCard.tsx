@@ -3,6 +3,7 @@ import { Clock, MessageCircle } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { rankLabel, tagLabel } from "@/lib/labels"
 import type { Post } from "@/lib/types"
 import { VoteButtons } from "./VoteButtons"
 
@@ -45,7 +46,7 @@ export function PostCard({ post }: PostCardProps) {
                 tagStyles[post.tagAccent],
               )}
             >
-              {post.tag}
+              {tagLabel(post.tag)}
             </Badge>
             <span className="flex items-center gap-1.5">
               <Clock size={14} className="text-muted-foreground" />
@@ -88,7 +89,7 @@ export function PostCard({ post }: PostCardProps) {
                     rankStyles[post.author.rank],
                   )}
                 >
-                  {post.author.rank}
+                  {rankLabel(post.author.rank)}
                 </span>
               </div>
             </div>
@@ -98,7 +99,7 @@ export function PostCard({ post }: PostCardProps) {
               className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               <MessageCircle size={16} />
-              {post.commentCount} comments
+              {post.commentCount} 条评论
             </Link>
           </div>
         </div>

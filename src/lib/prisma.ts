@@ -2,22 +2,28 @@ import { PrismaClient } from "@/generated/prisma/client"
 import { Pool } from "pg"
 import { PrismaPg } from "@prisma/adapter-pg"
 
-// Vercel Postgres 连接字符串拼接 sslmode（避免 pg driver 的安全警告）
+// Neon Postgres 连接字符串：使用 URL 构造器统一设置 sslmode=verify-full，
+// 同时处理 .env 中可能已有的 sslmode 空值（如 "&sslmode="）。
+// verify-full 避免 pg v9 的 SSL 弃用警告（sslmode=require 将被降级为弱安全语义）。
 const _raw = process.env.POSTGRES_PRISMA_URL!
-const connectionString = _raw.includes("?")
-  ? `${_raw}&sslmode=require`
-  : `${_raw}?sslmode=require`
+const _url = new URL(_raw)
+_url.searchParams.set("sslmode", "verify-full")
+const connectionString = _url.toString()
 
 const prismaClientSingleton = () => {
   const pool = new Pool({
     connectionString,
     // Keep a small pool: enough for concurrent OAuth callbacks,
-    // but not so many that local dev drains Vercel Postgres limits.
-    max: 3,
-    // Let the pool close idle connections after 30 s inactivity so
-    // Vercel Postgres (PgBouncer) doesn't kill them first.
-    idleTimeoutMillis: 30_000,
-    connectionTimeoutMillis: 15_000,
+    // but not so many that local dev drains Neon's connection limits.
+    // Neon direct-connection limit is ~20; 5 is safe for dev + build workers.
+    max: 5,
+    // Release idle connections after 10 s of inactivity.
+    // Shorter than Neon's 15 s idle timeout to avoid dead connections.
+    idleTimeoutMillis: 10_000,
+    // Neon cold starts can take 10-20 s; 30 s gives headroom.
+    connectionTimeoutMillis: 30_000,
+    // TCP keepalive prevents intermediate firewalls from dropping idle connections
+    keepAlive: true,
   })
 
   // Remove dead connections early: if the server closes one,

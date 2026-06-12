@@ -1,5 +1,6 @@
 ﻿import { Suspense } from "react"
 import type { Metadata } from "next"
+import Script from "next/script"
 import { getServerSession } from "next-auth"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AuthProvider } from "@/components/auth/AuthProvider"
@@ -15,8 +16,8 @@ import type { Category, UserStats } from "@/lib/types"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "NEXUS Forum",
-  description: "A modern community forum for League of Legends discussions, esports, patch notes, and player stories.",
+  title: "NEXUS 论坛",
+  description: "面向英雄联盟玩家的现代社区论坛——讨论赛事、版本公告与玩家故事。",
 }
 
 function deriveUserStats(
@@ -64,17 +65,16 @@ export default async function RootLayout({
   const userStats = deriveUserStats(dbUser)
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Blocking script: reads localStorage and sets .dark / .light class
-            BEFORE React hydrates.  This must be inline in <head> — never inside
-            a React component (React 19 will warn and not execute it client-side). */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("theme")||"dark";var d=document.documentElement;d.classList.add(t);d.style.colorScheme=t==="dark"?"dark":"light"}catch(e){}})()`,
-          }}
-        />
-      </head>
+    <html lang="zh-CN" suppressHydrationWarning>
+      {/* Blocking script: reads localStorage and sets .dark / .light class
+          BEFORE React hydrates.  Uses next/script (NOT a raw <script> tag)
+          to avoid React 19's "Scripts inside React components are never
+          executed when rendering on the client" warning.
+          Uses children (inline string) instead of dangerouslySetInnerHTML —
+          the recommended pattern for inline scripts with next/script. */}
+      <Script id="theme-switch" strategy="beforeInteractive">
+        {`(function(){try{var t=localStorage.getItem("theme")||"dark";var d=document.documentElement;d.classList.add(t);d.style.colorScheme=t==="dark"?"dark":"light"}catch(e){}})()`}
+      </Script>
       <body className="bg-background text-foreground antialiased min-h-screen font-sans">
         <ThemeProvider>
           <AuthProvider>

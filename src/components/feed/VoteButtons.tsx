@@ -76,7 +76,7 @@ export function VoteButtons({
           optimistic.userVote === "upvote" && "bg-primary/15 text-primary",
           status !== "authenticated" && "cursor-not-allowed opacity-45",
         )}
-        title={status !== "authenticated" ? "Sign in to vote" : "Upvote"}
+        title={status !== "authenticated" ? "登录后投票" : "赞同"}
       >
         <ArrowBigUp size={iconSize} strokeWidth={1.8} />
       </button>
@@ -99,7 +99,7 @@ export function VoteButtons({
           optimistic.userVote === "downvote" && "bg-accent text-foreground",
           status !== "authenticated" && "cursor-not-allowed opacity-45",
         )}
-        title={status !== "authenticated" ? "Sign in to vote" : "Downvote"}
+        title={status !== "authenticated" ? "登录后投票" : "反对"}
       >
         <ArrowBigDown size={iconSize} strokeWidth={1.8} />
       </button>

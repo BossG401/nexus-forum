@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { mockCategories } from "@/data/mock-categories"
+import { tagLabel } from "@/lib/labels"
 import type { Post } from "@/lib/types"
 import { PostCard } from "./PostCard"
 
@@ -20,12 +21,12 @@ export function Feed({ posts, activeCategory }: FeedProps) {
       <div className="mb-6 flex flex-col gap-4 animate-fade-in-up sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            {categoryLabel ? categoryLabel.replace("#", "") : "All Discussions"}
+            {categoryLabel ? tagLabel(categoryLabel) : "全部讨论"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {categoryLabel
-              ? `${posts.length} posts in this category`
-              : "Latest conversations from the community"}
+              ? `本分类共 ${posts.length} 篇帖子`
+              : "社区最新讨论"}
           </p>
         </div>
         <Button
@@ -34,7 +35,7 @@ export function Feed({ posts, activeCategory }: FeedProps) {
         >
           <Link href="/submit">
             <Plus size={16} strokeWidth={2.4} />
-            New Post
+            发帖
           </Link>
         </Button>
       </div>
@@ -49,9 +50,9 @@ export function Feed({ posts, activeCategory }: FeedProps) {
         </div>
       ) : (
         <div className="rounded-2xl border border-border bg-card p-10 text-center animate-fade-in">
-          <p className="text-base font-semibold text-foreground">No posts found</p>
+          <p className="text-base font-semibold text-foreground">暂无帖子</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            No discussions match this category yet.
+            该分类下还没有讨论。
           </p>
         </div>
       )}

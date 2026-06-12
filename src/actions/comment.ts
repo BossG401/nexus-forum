@@ -9,11 +9,11 @@ export async function createComment(postId: string, content: string) {
   const session = await getServerSession(authOptions)
 
   if (!session?.user?.id) {
-    throw new Error("Authentication required to comment")
+    throw new Error("请先登录后再评论")
   }
 
   if (!content?.trim()) {
-    throw new Error("Comment cannot be empty")
+    throw new Error("评论内容不能为空")
   }
 
   await prisma.comment.create({

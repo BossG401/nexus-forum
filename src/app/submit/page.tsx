@@ -10,7 +10,7 @@ export default function SubmitPage() {
         className="mb-6 inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       >
         <ArrowLeft size={16} />
-        Back to feed
+        返回首页
       </Link>
 
       <CreatePostForm />

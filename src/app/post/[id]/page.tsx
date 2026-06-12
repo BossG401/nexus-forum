@@ -9,6 +9,7 @@ import { VoteButtons } from "@/components/feed/VoteButtons"
 import { authOptions } from "@/lib/auth"
 import { mapPrismaComment, mapPrismaPost } from "@/lib/mappers"
 import { prisma } from "@/lib/prisma"
+import { rankLabel, tagLabel } from "@/lib/labels"
 import { cn } from "@/lib/utils"
 
 const rankStyles: Record<string, string> = {
@@ -155,7 +156,7 @@ export default async function PostDetailPage({
         className="mb-5 inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       >
         <ArrowLeft size={16} />
-        Back to discussions
+        返回讨论
       </Link>
 
       <article className="mb-8 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
@@ -174,7 +175,7 @@ export default async function PostDetailPage({
                 variant="outline"
                 className={cn("h-6 rounded-full px-2.5 text-xs font-medium", tagStyles[post.tagAccent])}
               >
-                {post.tag}
+                {tagLabel(post.tag)}
               </Badge>
               <span className="flex items-center gap-1.5">
                 <Clock size={14} />
@@ -195,14 +196,14 @@ export default async function PostDetailPage({
               </Avatar>
               <span className="text-sm font-medium text-foreground">{post.author.name}</span>
               <span className={cn("rounded-full border px-2 py-0.5 text-xs font-medium", rankStyles[post.author.rank])}>
-                {post.author.rank}
+                {rankLabel(post.author.rank)}
               </span>
             </div>
 
             {post.imageUrl ? (
               <div className="my-6 overflow-hidden rounded-xl border border-border bg-muted">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={post.imageUrl} alt="Post attachment" className="max-h-[520px] w-full object-cover" />
+                <img src={post.imageUrl} alt="帖子配图" className="max-h-[520px] w-full object-cover" />
               </div>
             ) : (
               <div className="my-6 border-t border-border" />
@@ -213,11 +214,11 @@ export default async function PostDetailPage({
             <div className="mt-7 flex items-center gap-4 border-t border-border pt-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <MessageCircle size={16} />
-                {post.commentCount} comments
+                {post.commentCount} 条评论
               </span>
               <button className="flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors hover:bg-accent hover:text-foreground">
                 <ExternalLink size={15} />
-                Share
+                分享
               </button>
             </div>
           </div>

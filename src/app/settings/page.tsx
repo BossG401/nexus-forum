@@ -19,16 +19,16 @@ export default async function SettingsPage() {
         className="mb-6 inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       >
         <ArrowLeft size={16} />
-        Back to feed
+        返回首页
       </Link>
-      <h1 className="mb-6 text-2xl font-bold tracking-tight text-foreground">Settings</h1>
+      <h1 className="mb-6 text-2xl font-bold tracking-tight text-foreground">设置</h1>
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <div className="mb-1 flex items-center gap-2">
           <Shield size={18} className="text-primary" />
-          <h2 className="text-base font-semibold text-foreground">Summoner identity</h2>
+          <h2 className="text-base font-semibold text-foreground">召唤师资料</h2>
         </div>
         <p className="mb-6 text-sm text-muted-foreground">
-          Update your summoner profile. Changes apply across NEXUS immediately.
+          更新你的召唤师资料。更改将立即应用到整个 NEXUS。
         </p>
         <SettingsForm defaultName={dbUser.name ?? ""} defaultServer={dbUser.server ?? ""} defaultRank={dbUser.lolRank ?? ""} defaultImage={dbUser.image ?? null} regions={REGIONS} ranks={RANKS} />
       </div>

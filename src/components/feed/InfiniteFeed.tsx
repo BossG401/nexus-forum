@@ -7,6 +7,7 @@ import { AlertCircle, Loader2, Plus } from "lucide-react"
 import { getMorePosts } from "@/actions/post"
 import { Button } from "@/components/ui/button"
 import { mockCategories } from "@/data/mock-categories"
+import { tagLabel } from "@/lib/labels"
 import type { Post } from "@/lib/types"
 import { PostCard } from "./PostCard"
 
@@ -56,7 +57,7 @@ export function InfiniteFeed({
       setCursor(result.nextCursor)
       if (!result.nextCursor) setHasMore(false)
     } catch (event) {
-      setError(event instanceof Error ? event.message : "Failed to load posts")
+      setError(event instanceof Error ? event.message : "帖子加载失败")
     } finally {
       setIsLoading(false)
       loadingRef.current = false
@@ -81,12 +82,12 @@ export function InfiniteFeed({
       <div className="mb-6 flex flex-col gap-4 animate-fade-in-up sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            {categoryLabel ? categoryLabel.replace("#", "") : "All Discussions"}
+            {categoryLabel ? tagLabel(categoryLabel) : "全部讨论"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {categoryLabel
-              ? `${posts.length} posts in this category`
-              : "Latest conversations from the community"}
+              ? `本分类共 ${posts.length} 篇帖子`
+              : "社区最新讨论"}
           </p>
         </div>
         <Button
@@ -95,7 +96,7 @@ export function InfiniteFeed({
         >
           <Link href="/submit">
             <Plus size={16} strokeWidth={2.4} />
-            New Post
+            发帖
           </Link>
         </Button>
       </div>
@@ -145,8 +146,8 @@ export function InfiniteFeed({
             </div>
           ) : (
             <div className="mt-6 rounded-2xl border border-border bg-card p-6 text-center">
-              <p className="text-sm font-medium text-foreground">You are all caught up.</p>
-              <p className="mt-1 text-sm text-muted-foreground">There are no more posts to load.</p>
+              <p className="text-sm font-medium text-foreground">已经看到底啦。</p>
+              <p className="mt-1 text-sm text-muted-foreground">没有更多帖子了。</p>
             </div>
           )}
 
@@ -161,16 +162,16 @@ export function InfiniteFeed({
                 className="inline-flex h-9 items-center gap-2 rounded-xl bg-muted px-4 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
               >
                 <Loader2 size={15} className={isLoading ? "animate-spin" : ""} />
-                Try again
+                重试
               </button>
             </div>
           ) : null}
         </>
       ) : (
         <div className="rounded-2xl border border-border bg-card p-10 text-center animate-fade-in">
-          <p className="text-base font-semibold text-foreground">No posts found</p>
+          <p className="text-base font-semibold text-foreground">暂无帖子</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            No discussions match this category yet.
+            该分类下还没有讨论。
           </p>
         </div>
       )}

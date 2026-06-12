@@ -15,7 +15,7 @@ export async function votePost(postId: string, type: "upvote" | "downvote"): Pro
   const session = await getServerSession(authOptions)
 
   if (!session?.user?.id) {
-    throw new Error("Authentication required to vote")
+    throw new Error("请先登录后再投票")
   }
 
   const userId = session.user.id

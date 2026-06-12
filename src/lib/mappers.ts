@@ -1,21 +1,21 @@
 import type { Post, Comment, PostRank } from "@/lib/types"
 
-// ── Relative time formatter ──
+// ── 相对时间格式化（中文无复数，逻辑更简单）──
 function timeAgo(date: Date): string {
   const now = new Date()
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-  if (seconds < 60) return "just now"
+  if (seconds < 60) return "刚刚"
   const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`
+  if (minutes < 60) return `${minutes} 分钟前`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`
+  if (hours < 24) return `${hours} 小时前`
   const days = Math.floor(hours / 24)
-  if (days < 7) return `${days} day${days !== 1 ? "s" : ""} ago`
+  if (days < 7) return `${days} 天前`
   const weeks = Math.floor(days / 7)
-  if (weeks < 4) return `${weeks} week${weeks !== 1 ? "s" : ""} ago`
+  if (weeks < 4) return `${weeks} 周前`
   const months = Math.floor(days / 30)
-  return `${months} month${months !== 1 ? "s" : ""} ago`
+  return `${months} 个月前`
 }
 
 // ── Prisma User → UI Author shape ──
@@ -27,7 +27,7 @@ interface PrismaAuthor {
 
 function mapAuthor(author: PrismaAuthor): Post["author"] {
   return {
-    name: author.name ?? "Unknown Summoner",
+    name: author.name ?? "未知召唤师",
     avatarUrl: author.image ?? "/avatars/default.svg",
     rank: (author.lolRank as PostRank) ?? "Gold",
   }
