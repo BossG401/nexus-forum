@@ -85,17 +85,56 @@ The home page (`/`) uses a hybrid server+client approach:
 
 `PAGE_SIZE = 10` lives in `src/lib/constants.ts` — NOT in a `"use server"` file (Next.js requires ALL exports from `"use server"` files to be async functions; a constant export breaks module resolution).
 
-`Feed.tsx` is unchanged and still used by esports/patches/trending pages for non-paginated rendering.
+`Feed.tsx` is used by esports/patches/trending pages for non-paginated rendering. These pages **must** pass `activeCategory` prop (category `id`) so `Feed` displays the correct Chinese category heading via `tagLabel()`.
+
+---
+
+## i18n: 数据键 → 中文显示名 映射
+
+数据库中的标签（`Post.tag`）和段位（`User.lolRank`）以英文存储，作为查询键和样式映射 key。汉化时这些键保持不变，只在渲染层通过 `src/lib/labels.ts` 转为中文显示：
+
+- **`tagLabel(tag)`** — `"#PatchNotes"` → `"版本公告"`，`"#Esports"` → `"电子竞技"` 等。无匹配时去掉 `#` 作为兜底。
+- **`rankLabel(rank)`** — `"Challenger"` → `"最强王者"`，`"Gold"` → `"黄金"` 等。无匹配时原样返回。
+
+**规则**: 所有 `PostCard`、`CommentCard`、`Navbar`、`RightPanel`、`SettingsForm`、`Sidebar`、`Feed`、`InfiniteFeed`、`post/[id]/page.tsx`、`profile/page.tsx` 中显示标签/段位的地方，**必须**使用 `tagLabel()` / `rankLabel()` 包装。样式 lookup（`rankStyles[rank]`、`tagStyles[tagAccent]`）继续使用英文 key。
+
+---
+
+---
+
+## Theme Script (防闪烁)
+
+`layout.tsx` renders a blocking inline `<script>` inside `<head>` that reads `localStorage` and sets `.dark` / `.light` class **before first paint**:
+
+```tsx
+<html lang="zh-CN" suppressHydrationWarning>
+  <head>
+    <script dangerouslySetInnerHTML={{ __html: `(function(){...})()` }} />
+  </head>
+  <body>...</body>
+</html>
+```
+
+**Why raw `<script>`, not `<Script>` from `next/script`:** React 19 warns "Encountered a script tag" for `<Script>` and "Scripts inside React components are never executed" for raw `<script>` outside `<head>`. A raw `<script>` inside `<head>` in a Server Component is server-rendered HTML — the browser executes it during parsing (before hydration). React 19's "never executed" warning is a false positive for SSR output.
 
 ---
 
 ## Database & Prisma
 
-**Provider**: PostgreSQL via Vercel Postgres. **Adapter**: `@prisma/adapter-pg` + `pg` Pool (not the older `@prisma/adapter-better-sqlite3`).
+**Provider**: PostgreSQL via Neon. **Adapter**: `@prisma/adapter-pg` + `pg` Pool.
 
-**Connection**: `src/lib/prisma.ts` constructs a `pg.Pool` with the connection string from `POSTGRES_PRISMA_URL` env var, wraps it with `PrismaPg` adapter, exports as `export const prisma` (named export, not default). SSL is set via `?sslmode=require` appended to the connection string — do not pass `ssl` option to `Pool` constructor (triggers pg deprecation warnings).
+**Connection**: `src/lib/prisma.ts` constructs a `pg.Pool` with the connection string from `POSTGRES_PRISMA_URL` env var. Uses a URL constructor to ensure `sslmode=verify-full` (NOT `require` — triggers pg v9 deprecation warning). Pool config:
 
-**Prisma 7 config**: `prisma.config.ts` at repo root provides the Migrate URL via `env("POSTGRES_PRISMA_URL")`. The schema file (`prisma/schema.prisma`) must NOT contain a `url` in the datasource block — Prisma 7 rejects this. The generator uses custom `output = "../src/generated/prisma"`, so all Prisma client imports must be from `@/generated/prisma/client`, never from `@prisma/client` directly.
+```
+max: 5                      // enough for concurrent OAuth callbacks
+idleTimeoutMillis: 10_000   // release idle connections before Neon's timeout
+connectionTimeoutMillis: 30_000  // generous headroom for Neon cold starts
+keepAlive: true             // prevent firewalls from dropping idle connections
+```
+
+**Neon endpoint**: Use the **direct** endpoint (`ep-...c-2.ap-southeast-1.aws.neon.tech`), NOT the pooler (`ep-...-pooler...`). The pooler with `channel_binding=require` causes intermittent "Connection terminated due to connection timeout" errors.
+
+**Prisma 7 config**: The schema file (`prisma/schema.prisma`) must NOT contain a `url` in the datasource block — Prisma 7 rejects this. The generator uses custom `output = "../src/generated/prisma"`, so all Prisma client imports must be from `@/generated/prisma/client`, never from `@prisma/client` directly.
 
 ---
 
@@ -131,7 +170,7 @@ Kept animations (clean, no skew/glitch): `.animate-fade-in`, `.animate-fade-in-u
 
 NextAuth v4 with two providers:
 - **GitHub OAuth** — requires `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` env vars
-- **Demo Login** (Credentials) — finds or creates a user by summoner name, auto-fills LoL defaults (Challenger / IONIA). For local dev/testing.
+- **体验登录 (Demo Login)** (Credentials) — finds or creates a user by summoner name, auto-fills LoL defaults (Challenger / IONIA). For local dev/testing.
 
 Session strategy is JWT. The `session` callback only copies `token.sub` → `session.user.id`. The JWT does not carry name/image/rank — those must be fetched from the database on each request.
 
